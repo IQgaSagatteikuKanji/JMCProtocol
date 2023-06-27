@@ -3,39 +3,41 @@ Just My Chat Protocol
 
 ### The rough plan for now (steps might be changed):
 #### Preparation
-- [ ] Gather information on different protocols that implement Internet Chats
-  - [ ] IRC - rfc 1459
-- [ ] Decide on a type of a message packet used
+- [x] Gather information on different algorithms and approaches for creating server-client architecture
+  - [x] Event driven architecture
+  - [x] Non-blocking sockets
+  - [x] Synchronization primitives and their domains
+  - [x] Request-Response model
+- [x] Decide on a type of a message packet used
   - Check only one: 
-    - [ ] Full text protocol
-    - [ ] Packet with a predefined non-text header
+    - [x] Packet with a predefined non-text header
 
 #### Abstract mechanisms
 - [ ] Plan messsages and their flow through the program <- A list of abstract steps
   - [ ] Text message
-    - [ ] Sending/receiving
-    - [ ] Deleting
-    - [ ] Editing
-  - [ ] Group control
-    - [ ] Connecting/Disconnecting
-    - [ ] Group creation
-  - [ ] Group Moderation capablities
-    - [ ] Creating group moderators <- only for group creators or ?equals
-    - [ ] Deleting user messages
+    - [x] Sending/receiving
+    - [x] Deleting
+    - [x] Editing
+    - [ ] Private messages (I think of creating the same structure as in a group but without group moderation)
+  - [x] Group control
+    - [x] Granting group moderation capabilities
+    - [x] Connecting/Disconnecting
+    - [x] Group creation
+  - [x] Group Moderation capablities
+    - [x] Deleting user messages
     - [ ] Baning user from the group 
-  - [ ] Host Moderation capabilities
-    - [ ] Deleting users messages
-    - [ ] ?Granting serverwide moderation capabilities
+  - [x] Host Moderation capabilities
+    - [x] Deleting users messages
     - [ ] Permabanning users
     - [ ] Permabanning groups
-  - [ ] Authorization
-  - [ ] File links
+  - [x] Authorization
+    - [x] Login message
+  - [ ] File handling
     - [ ] Uploading a file to a server
     - [ ] Downloading a file from a server
-  - [ ] Keep alive
 
 #### Architecture (WIP)
-Right now its just a mirroring of the specifications I was given with a slight organisation
+Right now its just a mirror of the specifications I was given with a slight organisation
 - [ ] Plan the architecture
   - [ ] Universal
     - [ ] Chat logging
@@ -44,5 +46,5 @@ Right now its just a mirroring of the specifications I was given with a slight o
   - [ ] Server side
     - [ ] Saving/Loading settings
     - [ ] Safe restart
-    - [ ] Logging
+    - [ ] Logging - Event sourcing?
     - [ ] Chats and sessions list indication

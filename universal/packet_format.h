@@ -51,4 +51,5 @@ void packet_destroy(struct packet *packet);
 // transfers ownership
 void encoded_packet_init(struct encoded_packet *encoded);
 void encoded_packet_destroy(struct encoded_packet *encoded);
+void encoded_packet_allocate_for(struct encoded_packet *encoded, uint8_t size);
 

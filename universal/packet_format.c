@@ -98,3 +98,11 @@ void encoded_packet_destroy(struct encoded_packet *encoded){
     free(encoded->text);
     encoded_packet_init(encoded);
 }
+
+void encoded_packet_allocate_for(struct encoded_packet *encoded, uint8_t size){    
+    assert(encoded != NULL);
+    assert(encoded->length == 0);
+
+    encoded->length = size;
+    encoded->text = calloc(1, encoded->length);
+}

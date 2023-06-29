@@ -11,11 +11,6 @@ struct socket_xpa{
     bool is_open;
 };
 
-struct address_v4{
-    uint8_t ip[4];
-    uint16_t port;
-};
-
 void socket_init(struct socket_xpa *);
 void socket_destroy(struct socket_xpa *);
 

@@ -24,5 +24,5 @@ struct trctrl{
 void trctrl_init(struct trctrl *ctrl, struct socket_xpa *sock);
 void trctrl_destroy(struct trctrl *ctrl);
 
-void trctrl_send(struct trctrl *ctrl, struct packet *pack);
-void trctrl_receive(struct trctrl *ctrl, struct packet *pack);
+int trctrl_send(struct trctrl *ctrl, struct packet *pack);
+int trctrl_receive(struct trctrl *ctrl, struct packet *pack);

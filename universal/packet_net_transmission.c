@@ -15,7 +15,7 @@ void trctrl_destroy(struct trctrl *ctrl){
     ctrl->sock = NULL;
 }
 
-void trctrl_send(struct trctrl *ctrl, struct packet *pack){
+int trctrl_send(struct trctrl *ctrl, struct packet *pack){
     assert(pack != NULL);
     assert(ctrl != NULL);
     assert(ctrl->sock != NULL);
@@ -32,15 +32,17 @@ void trctrl_send(struct trctrl *ctrl, struct packet *pack){
         step = socket_send(ctrl->sock, enc.text + bytes_sent, enc.length - bytes_sent);
         if(step < 0){
             // signal about error in send
-            assert(step > 0);
+            encoded_packet_destroy(&enc);
+            return -1;
         }
         bytes_sent += step;
     }
 
     encoded_packet_destroy(&enc);
+    return 0;
 }
 
-void trctrl_receive_header(struct trctrl *ctrl, struct packet *pack){
+int trctrl_receive_header(struct trctrl *ctrl, struct packet *pack){
     struct encoded_packet header;
     encoded_packet_init(&header);
     
@@ -52,8 +54,8 @@ void trctrl_receive_header(struct trctrl *ctrl, struct packet *pack){
     while( bytes_received < expected_length){
         step = socket_receive(ctrl->sock, header.text + bytes_received, header.length - bytes_received);
         if(step < 0){
-            // signal about error in receive header
-            assert(step > 0);
+            encoded_packet_destroy(&header);
+            return -1;
         }
         bytes_received += step;
     }
@@ -62,7 +64,7 @@ void trctrl_receive_header(struct trctrl *ctrl, struct packet *pack){
     encoded_packet_destroy(&header);
 }
 
-void trctrl_receive(struct trctrl *ctrl, struct packet *pack){
+int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
     assert(pack != NULL);
     assert(ctrl != NULL);
     assert(ctrl->sock != NULL);
@@ -78,12 +80,13 @@ void trctrl_receive(struct trctrl *ctrl, struct packet *pack){
     while( bytes_received < pack->header.payload_length){
         step = socket_receive(ctrl->sock, payload.text + bytes_received, payload.length - bytes_received);
         if(step < 0){
-            // signal about error in receive header
-            assert(step > 0);
+            encoded_packet_destroy(&payload);
+            return -1;
         }
         bytes_received += step;
     }
 
     decode_payload(&payload, pack, 0);
     encoded_packet_destroy(&payload);
+    return 0;
 }

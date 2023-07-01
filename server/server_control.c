@@ -10,6 +10,11 @@
 void server_init(struct server_context *server){
     assert(server != NULL);
 
+    for(int i = 0; i < MAX_SERVED_CLIENTS_NUMBER; i++){
+        server->thread_available[i] = true;
+        server->waiting_for_clean_up[i] = false;
+    }
+
     uint8_t ip_address[] = IP_ADDRESS;
     for(int i = 0; i < IPV4_LENGTH; i++){
         server->address.ip[i] = ip_address[i];
@@ -19,6 +24,7 @@ void server_init(struct server_context *server){
     server->event_handler_main = EVENT_HANDLER;
 
     server->clients_number = -1; //hasn't started yet
+    server->working = false;
 
     socket_init(&server->host_sock);
     socket_open(&server->host_sock);
@@ -34,10 +40,18 @@ void server_destroy(struct server_context *server){
     socket_destroy(&server->host_sock);
 }
 
+struct thread_routine_parameters{
+    struct server_context *server;
+    uint8_t client
+};
 
-void thread_routine(struct server_context *server, uint8_t client){
+
+void thread_routine(struct thread_routine_parameters *params){
+    //unpacking params for easier use
+    struct server_context *server = params->server;
+    uint8_t client = params->client;
+
     int socket_error = false;
-
     struct trctrl *serving = &server->clients[client];
     struct event event;
     event_init(&event);
@@ -63,9 +77,63 @@ void thread_routine(struct server_context *server, uint8_t client){
 
         if(socket_error < 0){
             event_destroy(&event);
-            return;
+            server->waiting_for_clean_up[client] = true;
+            server->clients_number--;
+            thread_exit(NULL);
         }
     }
+}
+
+bool server_can_serve_next_client(struct server_context *server){
+    return (server->clients_number < MAX_SERVED_CLIENTS_NUMBER) && (server->working);
+}
+
+void server_clean_up_thread_if_finished(struct server_context *server, uint16_t thread){
+    if(server->waiting_for_clean_up[thread]){
+        //wait for the thread to finish execution then free the thread resources
+        thread_join(server->threads + thread, NULL);
+        socket_destroy(&server->clients[thread].sock);
+        trctrl_destroy(&server->clients[thread]);
+
+        server->waiting_for_clean_up[thread] = false;
+        server->thread_available[thread] = true;
+    };
+}
+
+//expects that there is a free space
+//will effectively block execution if there isn't
+uint16_t server_find_space_for_thread(struct server_context *server, uint16_t prev){
+    //try the next possible in a ring as naive strategy
+    uint16_t next = (prev + 1) % MAX_SERVED_CLIENTS_NUMBER;
+    server_clean_up_thread_if_finished(server, next);
+
+    if(server->thread_available[next]){
+        return next;
+    }
+    else{
+        //if it fails search for any available spot from 0 
+        for(int i = 0; i < MAX_SERVED_CLIENTS_NUMBER; i++){
+            server_clean_up_thread_if_finished(server, i);
+            if(server->thread_available[i]) return i;
+        }
+    }
+}
+
+uint16_t dispatch_resources_for_client(struct server_context *server, uint16_t available_space, 
+                                        struct socket_xpa *client){
+    available_space = server_find_space_for_thread(server, available_space);
+
+    server->thread_available[available_space] = false;
+    trctrl_init(&server->clients[available_space], client);
+    
+    struct thread_routine_parameters *params = calloc(1, sizeof(struct thread_routine_parameters));
+    
+    params->client = available_space;
+    params->server = server;
+
+    thread_create(server->threads + available_space, NULL, (void *(*)(void *)) thread_routine, params);
+    
+    return available_space;
 }
 
 void server_start(struct server_context *server){
@@ -78,7 +146,8 @@ void server_start(struct server_context *server){
         server_destroy(server);
         exit(error_code);
     }
-    //starts listening
+
+    //start listening
     error_code = socket_listen(&server->host_sock, ACTIVE_QUEUE_SIZE);
     if(error_code < 0){
         perror("FATAL ERROR: Failed to start listening to the socket\n");
@@ -86,32 +155,56 @@ void server_start(struct server_context *server){
         exit(error_code);
     }
 
-
     server->clients_number = 0;
     server->working = true;
-    //dispatches one thread for each client
+
+    //listen for clients and dispatch one thread for each client
+    uint16_t available_space = 0;
+    struct socket_xpa incoming_client;
+
+    while(server->working){
+        socket_accept(&server->host_sock, &incoming_client);
+
+        if(server_can_serve_next_client(server)){
+            server->clients_number++;
+            available_space = dispatch_resources_for_client(server, available_space, &incoming_client);
+        } 
+        else{
+            //if client capacity reached deny connection
+            socket_destroy(&incoming_client);
+        }
+    }
 }
 
 
 void server_shutdown(struct server_context *server){
     assert(server != NULL);
-
-    //sends event that server shuts down
-    struct event event;
-    event_init(&event);
-    event.type = SERVER_IS_SHUTTING_DOWN;
-    server->event_handler_main(&event, false);
-    event_destroy(&event);
+    if(server->working){
+        //sends event that server shuts down
+        struct event event;
+        event_init(&event);
+        event.type = SERVER_IS_SHUTTING_DOWN;
+        server->event_handler_main(&event, false);
+        event_destroy(&event);
 
     
-    //stops all threads 
-    server->working = false;
+        //stop all threads and close all clients
+        server->working = false;
 
-    //close all clients
-    for(int i = 0; i < server->clients_number; i++){
-        socket_destroy(server->clients[i].sock);
-        trctrl_destroy(&server->clients[i]);
+        for(int i = 0; i < server->clients_number; i++){
+            if(!server->thread_available[i]){
+                //once the socket is shut down, function to read a socket returns negative number for an error
+                //we wait for a thread to shut down its functions and then destroy structures
+                socket_shutdown(server->clients[i].sock);
+                thread_join(server->threads + i, NULL);
+                
+                socket_destroy(server->clients[i].sock);
+                trctrl_destroy(&server->clients[i]);
+            }
+        }
+
+        server->clients_number = 0;
     }
 
-    server->clients_number = 0;
+    
 }

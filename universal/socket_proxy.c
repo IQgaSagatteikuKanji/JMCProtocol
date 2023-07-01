@@ -81,7 +81,6 @@ void socket_accept(struct socket_xpa *server, struct socket_xpa *client){
 int socket_shutdown(struct socket_xpa *sock){
     assert(sock->is_open);
 
-    sock->is_open = false;
     return shutdown(sock->descr, SHUT_RDWR);
 }
 

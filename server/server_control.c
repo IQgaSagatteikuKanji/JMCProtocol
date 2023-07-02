@@ -54,14 +54,15 @@ void thread_routine(struct thread_routine_parameters *params){
     struct event event;
     event_init(&event);
     event.generated_by = client;
+    event.server = server;
 
     struct packet packet;
     packet_init(&packet);
 
     while(server->working){
         
+        socket_error = trctrl_receive(serving, &packet);
         printf("Serving client. Error code: %d\n", socket_error);
-        socket_error = trctrl_receive(serving,&packet);
 
         if(socket_error < 0){
             event.type = CLIENT_SOCKET_HAS_DISCONNECTED;
@@ -75,7 +76,7 @@ void thread_routine(struct thread_routine_parameters *params){
         packet_destroy(&packet);
 
         if(socket_error < 0){
-            printf("Client disconnected. Finishing up thread...\n");
+            perror("Client disconnected. Finishing up thread...\n");
             event_destroy(&event);
             server->waiting_for_clean_up[client] = true;
             server->clients_number--;
@@ -105,6 +106,7 @@ void server_clean_up_thread_if_finished(struct server_context *server, uint16_t 
 uint16_t server_find_space_for_thread(struct server_context *server, uint16_t prev){
     //try the next possible in a ring as naive strategy
     uint16_t next = (prev + 1) % MAX_SERVED_CLIENTS_NUMBER;
+
     server_clean_up_thread_if_finished(server, next);
 
     if(server->thread_available[next]){
@@ -112,7 +114,7 @@ uint16_t server_find_space_for_thread(struct server_context *server, uint16_t pr
     }
     else{
         //if it fails search for any available spot from 0 
-        for(int i = 0; i < MAX_SERVED_CLIENTS_NUMBER; i++){
+        for(uint16_t i = 0; i < MAX_SERVED_CLIENTS_NUMBER; i++){
             server_clean_up_thread_if_finished(server, i);
             if(server->thread_available[i]) return i;
         }
@@ -164,6 +166,13 @@ void server_start(struct server_context *server){
     server->clients_number = 0;
     server->working = true;
 
+    //send event that server is starting
+    struct event event;
+    event_init(&event);
+    event.type = SERVER_STARTING;
+    server->event_handler_main(&event, false);
+    event_destroy(&event);
+
     //listen for clients and dispatch one thread for each client
     uint16_t available_space = 0;
     struct socket_xpa *incoming_client = calloc(1, sizeof(struct socket_xpa));
@@ -174,7 +183,7 @@ void server_start(struct server_context *server){
         socket_accept(&server->host_sock, incoming_client);
 
         if(server_can_serve_next_client(server)){
-            printf("Incomming client: ");
+            printf("Incoming client: ");
             printf("Accepted\n");
 
             server->clients_number++;
@@ -184,7 +193,7 @@ void server_start(struct server_context *server){
         else{
             //if client capacity reached deny connection
             socket_destroy(incoming_client);
-            printf("Incomming client: ");
+            printf("Incoming client: ");
             printf("\nClient tried to connect, but the capacity is reached. Denied\n");
         }
     }
@@ -198,6 +207,7 @@ void server_shutdown(struct server_context *server){
         struct event event;
         event_init(&event);
         event.type = SERVER_IS_SHUTTING_DOWN;
+        event.server = server;
         server->event_handler_main(&event, false);
         event_destroy(&event);
 
@@ -221,4 +231,54 @@ void server_shutdown(struct server_context *server){
     }
 
     
+}
+
+// Performs server checks for sending/receiving packets
+enum SERVOP_STATUS server_send_message(struct server_context *server, uint8_t client_id, struct packet *msg){
+    assert(server != NULL);
+    assert(client_id < MAX_SERVED_CLIENTS_NUMBER);
+
+    if(!server->thread_available[client_id] && !server->waiting_for_clean_up[client_id] && msg != NULL){
+        int code = trctrl_send(server->clients + client_id, msg);
+        if(code < 0)
+            return CONNECTION_TO_CLIENT_UNAVAILABLE;
+    } else{
+        if(msg != NULL)
+            return NOT_EXISTING_CLIENT;
+        else return MESSAGE_CANT_BE_NULL;
+    }
+    return SUCCESS;
+}
+
+//not recommended for use
+enum SERVOP_STATUS server_receive_message(struct server_context *server, uint8_t client_id, struct packet *msg){
+    assert(server != NULL);
+    assert(client_id < MAX_SERVED_CLIENTS_NUMBER);
+
+     if(!server->thread_available[client_id] && !server->waiting_for_clean_up[client_id] && msg != NULL){
+        int code = trctrl_receive(server->clients + client_id, msg);
+        
+        return CONNECTION_TO_CLIENT_UNAVAILABLE;
+
+    } else{
+        if(msg != NULL)
+            return NOT_EXISTING_CLIENT;
+        else return MESSAGE_CANT_BE_NULL;
+    }
+    return SUCCESS;
+}
+
+void server_close_client(struct server_context *server, uint8_t client_id){
+    assert(server != NULL);
+
+    if(client_id < MAX_SERVED_CLIENTS_NUMBER && !server->thread_available[client_id]){
+        socket_shutdown(server->clients[client_id].sock);
+        thread_join(server->threads + client_id, NULL);
+                
+        socket_destroy(server->clients[client_id].sock);
+        trctrl_destroy(&server->clients[client_id]);
+        server->waiting_for_clean_up[client_id] = false;
+        server->thread_available[client_id] = true;
+        server->clients_number--;
+    }
 }

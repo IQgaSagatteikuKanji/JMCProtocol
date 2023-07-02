@@ -1,6 +1,13 @@
 # JMCProtocol
 Just My Chat Protocol
 
+
+### Scenario 1
+To run scenario 1 where empty messages are rerouted by the server, just use
+```shell
+make scenario1
+```
+
 ### The rough plan for now (steps might be changed):
 #### Preparation
 - [x] Gather information on different algorithms and approaches for creating server-client architecture

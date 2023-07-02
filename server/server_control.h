@@ -54,6 +54,13 @@ struct server_context{
     struct thread threads[MAX_SERVED_CLIENTS_NUMBER];
 };
 
+enum SERVOP_STATUS{
+    SUCCESS = 0,
+    NOT_EXISTING_CLIENT,
+    CONNECTION_TO_CLIENT_UNAVAILABLE,
+    MESSAGE_CANT_BE_NULL
+};
+
 void server_init(struct server_context *server);
 void server_destroy(struct server_context *server);
 
@@ -61,9 +68,10 @@ void server_start(struct server_context *server);
 void server_shutdown(struct server_context *server);
 
 // Performs server checks for sending/receiving packets
-void server_send_message(struct server_context *server, uint8_t client_id, struct packet *msg);
+enum SERVOP_STATUS server_send_message(struct server_context *server, uint8_t client_id, struct packet *msg);
 
 //not recommended for use
-void server_receive_message(struct server_context *server, uint8_t client_id, struct packet *msg);
+enum SERVOP_STATUS server_receive_message(struct server_context *server, uint8_t client_id, struct packet *msg);
 
+//always success
 void server_close_client(struct server_context *server, uint8_t client_id);

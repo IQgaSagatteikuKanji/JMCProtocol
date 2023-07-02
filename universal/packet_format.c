@@ -51,7 +51,7 @@ uint8_t decode_header(struct encoded_packet *encoded, struct packet_header *head
     assert(encoded != NULL);
     assert(header != NULL);
     assert(header->payload_length == 0);
-    assert(encoded->length > HEADER_SIZE + offset);
+    assert(encoded->length >= HEADER_SIZE + offset);
     
     uint32_t c_offset = offset;
     c_offset += translate_XDR_to_uint32(encoded->text + c_offset, &header->id);
@@ -74,7 +74,7 @@ uint8_t decode_payload(struct encoded_packet *encoded, struct packet *packet, ui
 
 void header_init(struct packet_header *header){
     header->id = 0;
-    header->op_code = OPCODE_NULL;
+    header->op_code = 0;
     header->sender_id = 0;
     header->receiver_id = 0;
     header->payload_length = 0;

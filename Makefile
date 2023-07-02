@@ -2,14 +2,14 @@ GCC=gcc
 FLAGS=-c
 UNIVERSAL_LIBS=-I./universal
 
-all: server
+all: server client
 
-
-server: XDR_representation.o threads_proxy.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o event_handler_entry.o events.o server_control.o server_main.o 
+server: logger.o XDR_representation.o threads_proxy.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o event_handler_entry.o events.o server_control.o server_main.o 
 	$(GCC) -pthread $^ -o server_app
 
-client: XDR_representation.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o client_main.o
+client: logger.o XDR_representation.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o client_main.o
 	$(GCC) $^ -o client_app
+
 
 client_main.o: ./client/client_main.c
 	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^
@@ -26,6 +26,9 @@ events.o: ./server/events.c
 event_handler_entry.o: ./server/event_handler_entry.c
 	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^
 
+
+logger.o: ./universal/logger.c
+	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^
 
 internet_address.o: ./universal/internet_address.c
 	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^
@@ -48,3 +51,15 @@ socket_proxy.o: ./universal/socket_proxy.c
 
 clean: 
 	rm *.o
+
+
+scenario1: server client
+	timeout -k 8 -s SIGINT 8 ./server_app &
+	sleep 2
+	./client_app recver &
+	sleep 2
+	./client_app sender &
+	sleep 2
+
+wait:
+	sleep 4

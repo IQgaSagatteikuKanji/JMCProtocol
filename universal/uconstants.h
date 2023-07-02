@@ -4,5 +4,8 @@
 #define PAYLOAD_MAX_LENGTH 512
 
 // Command codes
-#define OPCODE_NULL 0
-
+enum MESSAGE_TYPES{
+    NULL_MSG = 0,
+    GREETING,
+    PRIVMSG
+};

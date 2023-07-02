@@ -54,7 +54,8 @@ int trctrl_receive_header(struct trctrl *ctrl, struct packet *pack){
     uint32_t bytes_received = 0;
     uint32_t step = 0;
     while( bytes_received < expected_length){
-        step = socket_receive(ctrl->sock, header.text + bytes_received, header.length - bytes_received);
+        step = socket_receive(ctrl->sock, header.text + bytes_received, expected_length - bytes_received);
+        
         if(step <= 0){
             encoded_packet_destroy(&header);
             return -1;
@@ -64,6 +65,7 @@ int trctrl_receive_header(struct trctrl *ctrl, struct packet *pack){
 
     decode_header(&header, &pack->header, 0);
     encoded_packet_destroy(&header);
+    return 0;
 }
 
 int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
@@ -71,7 +73,9 @@ int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
     assert(ctrl != NULL);
     assert(ctrl->sock != NULL);
     
-    if(trctrl_receive_header(ctrl, pack) < 0) return -1;
+    if(trctrl_receive_header(ctrl, pack) < 0){
+        return -1;
+    } 
 
     struct encoded_packet payload;
     encoded_packet_init(&payload);

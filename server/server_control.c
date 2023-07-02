@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "socket_proxy.h"
 #include "packet_net_transmission.h"
@@ -15,10 +16,7 @@ void server_init(struct server_context *server){
         server->waiting_for_clean_up[i] = false;
     }
 
-    uint8_t ip_address[] = IP_ADDRESS;
-    for(int i = 0; i < IPV4_LENGTH; i++){
-        server->address.ip[i] = ip_address[i];
-    }
+    server->address.ip = IP_ADDRESS;
     server->address.port = PORT_NUMBER;
 
     server->event_handler_main = EVENT_HANDLER;
@@ -42,7 +40,7 @@ void server_destroy(struct server_context *server){
 
 struct thread_routine_parameters{
     struct server_context *server;
-    uint8_t client
+    uint8_t client;
 };
 
 
@@ -92,7 +90,7 @@ void server_clean_up_thread_if_finished(struct server_context *server, uint16_t 
     if(server->waiting_for_clean_up[thread]){
         //wait for the thread to finish execution then free the thread resources
         thread_join(server->threads + thread, NULL);
-        socket_destroy(&server->clients[thread].sock);
+        socket_destroy(server->clients[thread].sock);
         trctrl_destroy(&server->clients[thread]);
 
         server->waiting_for_clean_up[thread] = false;
@@ -139,21 +137,25 @@ uint16_t dispatch_resources_for_client(struct server_context *server, uint16_t a
 void server_start(struct server_context *server){
     assert(server != NULL);
 
+    printf("Trying to bind server to address: ");
     //binds server
     int error_code = socket_bind(&server->host_sock, &server->address);
     if(error_code < 0){
-        perror("FATAL ERROR: Failed to bind to the given address\n");
+        printf("\nFATAL ERROR: Failed to bind to the given address\n");
         server_destroy(server);
         exit(error_code);
     }
+    printf("SUCCESS\n");
 
+    printf("Trying to start listening: ");
     //start listening
     error_code = socket_listen(&server->host_sock, ACTIVE_QUEUE_SIZE);
     if(error_code < 0){
-        perror("FATAL ERROR: Failed to start listening to the socket\n");
+        perror("\nFATAL ERROR: Failed to start listening to the socket\n");
         server_destroy(server);
         exit(error_code);
     }
+    printf("SUCCESS\n");
 
     server->clients_number = 0;
     server->working = true;
@@ -161,17 +163,20 @@ void server_start(struct server_context *server){
     //listen for clients and dispatch one thread for each client
     uint16_t available_space = 0;
     struct socket_xpa incoming_client;
-
+    printf("Server ready to accept clients\n");
     while(server->working){
+        socket_init(&incoming_client);
         socket_accept(&server->host_sock, &incoming_client);
-
+        printf("Incomming client: ");
         if(server_can_serve_next_client(server)){
             server->clients_number++;
             available_space = dispatch_resources_for_client(server, available_space, &incoming_client);
+            printf("Accepted\n");
         } 
         else{
             //if client capacity reached deny connection
             socket_destroy(&incoming_client);
+            printf("\nClient tried to connect, but the capacity is reached. Denied\n");
         }
     }
 }

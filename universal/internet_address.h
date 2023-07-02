@@ -5,7 +5,7 @@
 #define IPV4_LENGTH 4
 
 struct address_v4{
-    uint8_t ip[IPV4_LENGTH];
+    char *ip;
     uint16_t port;
 };
 

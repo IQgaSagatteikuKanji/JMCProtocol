@@ -19,4 +19,4 @@ int thread_create(struct thread *thr, struct thread_attributes *attributes, void
 void thread_exit(void *retval);
 
 int thread_join(struct thread *thr, void ** data);
-int pthread_cancel (struct thread *thr);
+int thread_cancel(struct thread *thr);

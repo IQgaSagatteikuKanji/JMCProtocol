@@ -3,14 +3,12 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "internet_address.h"
-
 // Ill write implementation for Linux only but it should be trivial to add others
 // SOCK_STREAM
 
 #include<sys/socket.h>
 #include<arpa/inet.h>	
-
+#include <unistd.h>
 
 
 uint16_t extract_port_address(struct address_v4 *address){
@@ -57,7 +55,7 @@ int socket_bind(struct socket_xpa *sock, struct address_v4 *addr){
     struct sockaddr_in address;
     address.sin_family = AF_INET;
 
-    address.sin_addr.s_addr = (in_addr_t) extract_ip_address(addr);
+    address.sin_addr.s_addr = extract_ip_address(addr);
     address.sin_port = extract_port_number(addr);
 
     return bind(sock->descr,(struct sockaddr *) &address, sizeof(address)); 

@@ -110,7 +110,7 @@ uint32_t translate_XDR_to_fixed_length_opaque(char *from, uint32_t length, char 
 
 
 uint32_t translate_variable_length_opaque_to_XDR(char *opaque, uint32_t length, char *to){
-    uint32_t space = translate_uint32_to_XDR(length, to);
+    uint32_t space = translate_uint32_to_XDR(&length, to);
     char *shifted_to = to + space;
 
     space += translate_fixed_length_opaque_to_XDR(opaque, length, shifted_to);

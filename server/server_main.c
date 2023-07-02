@@ -14,16 +14,17 @@ int main(){
         printf("Failed to set up SIGINT handler. Shutting down.\n");
         exit(1);
     }
-
+    printf("Initialising server...\n");
     server_init(&server);
     server_started = 1;
 
+    printf("Starting server...\n");
     server_start(&server);
 }
 
 
 void shutdown(int signum){
-    printf("Shutting down server. Please wait...\n");
+    printf("\nShutting down server. Please wait...\n");
     
     if(server_started != 0){
         server_shutdown(&server);

@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "internet_address.h"
 // NOT TESTED YET
 
 //just an abstraction over sockets to easily change platforms later if needed

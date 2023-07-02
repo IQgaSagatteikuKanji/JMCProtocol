@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "packet_net_transmission.h"
 
@@ -12,6 +13,7 @@ void trctrl_init(struct trctrl *ctrl, struct socket_xpa *sock){
 }
 
 void trctrl_destroy(struct trctrl *ctrl){
+    free(ctrl->sock);
     ctrl->sock = NULL;
 }
 
@@ -53,7 +55,7 @@ int trctrl_receive_header(struct trctrl *ctrl, struct packet *pack){
     uint32_t step = 0;
     while( bytes_received < expected_length){
         step = socket_receive(ctrl->sock, header.text + bytes_received, header.length - bytes_received);
-        if(step < 0){
+        if(step <= 0){
             encoded_packet_destroy(&header);
             return -1;
         }
@@ -69,7 +71,7 @@ int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
     assert(ctrl != NULL);
     assert(ctrl->sock != NULL);
     
-    trctrl_receive_header(ctrl, pack);
+    if(trctrl_receive_header(ctrl, pack) < 0) return -1;
 
     struct encoded_packet payload;
     encoded_packet_init(&payload);
@@ -79,7 +81,7 @@ int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
     uint32_t step = 0;
     while( bytes_received < pack->header.payload_length){
         step = socket_receive(ctrl->sock, payload.text + bytes_received, payload.length - bytes_received);
-        if(step < 0){
+        if(step <= 0){
             encoded_packet_destroy(&payload);
             return -1;
         }

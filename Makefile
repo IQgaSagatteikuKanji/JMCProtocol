@@ -8,6 +8,11 @@ all: server
 server: XDR_representation.o threads_proxy.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o event_handler_entry.o events.o server_control.o server_main.o 
 	$(GCC) -pthread $^ -o server_app
 
+client: XDR_representation.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o client_main.o
+	$(GCC) $^ -o client_app
+
+client_main.o: ./client/client_main.c
+	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^
 
 server_main.o: ./server/server_main.c
 	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^

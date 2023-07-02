@@ -12,7 +12,7 @@
 // Relies that user opens and closes sockets with outside tools and only cares that packets are correctly
 // exchanged
 
-// Doesn't possess ownership over socket_xpa
+// Possesses ownership over socket_xpa
 // Possesses ownership over archiver
 
 // transmission control

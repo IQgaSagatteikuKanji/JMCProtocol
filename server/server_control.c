@@ -40,7 +40,7 @@ void server_destroy(struct server_context *server){
 
 struct thread_routine_parameters{
     struct server_context *server;
-    uint8_t client;
+    uint16_t client;
 };
 
 
@@ -60,6 +60,7 @@ void thread_routine(struct thread_routine_parameters *params){
 
     while(server->working){
         
+        printf("Serving client. Error code: %d\n", socket_error);
         socket_error = trctrl_receive(serving,&packet);
 
         if(socket_error < 0){
@@ -74,6 +75,7 @@ void thread_routine(struct thread_routine_parameters *params){
         packet_destroy(&packet);
 
         if(socket_error < 0){
+            printf("Client disconnected. Finishing up thread...\n");
             event_destroy(&event);
             server->waiting_for_clean_up[client] = true;
             server->clients_number--;
@@ -129,6 +131,8 @@ uint16_t dispatch_resources_for_client(struct server_context *server, uint16_t a
     params->client = available_space;
     params->server = server;
 
+    printf("Socket placed at: %d\n", available_space);
+
     thread_create(server->threads + available_space, NULL, (void *(*)(void *)) thread_routine, params);
     
     return available_space;
@@ -162,20 +166,25 @@ void server_start(struct server_context *server){
 
     //listen for clients and dispatch one thread for each client
     uint16_t available_space = 0;
-    struct socket_xpa incoming_client;
+    struct socket_xpa *incoming_client = calloc(1, sizeof(struct socket_xpa));
+
     printf("Server ready to accept clients\n");
     while(server->working){
-        socket_init(&incoming_client);
-        socket_accept(&server->host_sock, &incoming_client);
-        printf("Incomming client: ");
+        socket_init(incoming_client);
+        socket_accept(&server->host_sock, incoming_client);
+
         if(server_can_serve_next_client(server)){
-            server->clients_number++;
-            available_space = dispatch_resources_for_client(server, available_space, &incoming_client);
+            printf("Incomming client: ");
             printf("Accepted\n");
+
+            server->clients_number++;
+            available_space = dispatch_resources_for_client(server, available_space, incoming_client);
+            incoming_client = calloc(1, sizeof(struct socket_xpa));
         } 
         else{
             //if client capacity reached deny connection
-            socket_destroy(&incoming_client);
+            socket_destroy(incoming_client);
+            printf("Incomming client: ");
             printf("\nClient tried to connect, but the capacity is reached. Denied\n");
         }
     }

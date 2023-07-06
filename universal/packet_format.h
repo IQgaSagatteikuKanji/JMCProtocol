@@ -31,6 +31,7 @@ struct encoded_packet{
     char *text;
 };
 
+#define PAYLOAD_MAX_LENGTH 512
 #define HEADER_SIZE sizeof(struct packet_header)
 
 void encode_packet(struct packet *packet, struct encoded_packet *encoded);

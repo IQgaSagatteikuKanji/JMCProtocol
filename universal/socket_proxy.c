@@ -97,6 +97,7 @@ int socket_send(struct socket_xpa *sock, char *str, int length){
 }
 
 int socket_receive(struct socket_xpa *sock, char *str, int length){
+    assert(sock != NULL);
     assert(sock->is_open);
 
     return recv(sock->descr, str, length, 0);

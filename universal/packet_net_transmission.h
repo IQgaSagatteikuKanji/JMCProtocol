@@ -20,6 +20,9 @@ struct trctrl{
     struct socket_xpa *sock;
 };
 
+#define LENGTH_DEFINING_HEADER_LENGTH sizeof(uint32_t)
+#define MAX_LENGTH_OF_NET_TRANSMITTED_PACKET (HEADER_SIZE + PAYLOAD_MAX_LENGTH + LENGTH_DEFINING_HEADER_LENGTH)
+
 // Add archiver to the init and structure
 void trctrl_init(struct trctrl *ctrl, struct socket_xpa *sock);
 void trctrl_destroy(struct trctrl *ctrl);

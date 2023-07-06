@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
     socket_open(&sock);
 
     server.ip = "0.0.0.0";
-    server.port = 5005;
+    server.port = 5000;
     socket_connect(&sock, &server);
 
     trctrl_init(&ctrl, &sock);

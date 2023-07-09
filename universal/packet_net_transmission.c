@@ -98,14 +98,19 @@ int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
     if(error_code < 0){
         return error_code;
     }
+    //check if the size of packet is smaller than defined by archiver
     if(expected_length > MAX_LENGTH_OF_NET_TRANSMITTED_PACKET || expected_length == 0){
         return -1;
     }
     
+    //receive archive
     error_code = receive_exactly_n_bytes(ctrl, &encmes, expected_length);
     if(error_code < 0){
         return error_code;
     }
+    //dearchive packet
+
+    //decode packet
     decode_packet(&encmes, pack, 0);
     encoded_packet_destroy(&encmes);
 

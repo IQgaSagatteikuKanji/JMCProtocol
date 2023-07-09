@@ -6,41 +6,43 @@
 #include "packet_format.h"
 #include "logger.h"
 #include "server_control.h"
-// this thing is temporary just to demonstrate a working scenario
+#include "handlers/server_state.h"
+#include "handlers/Users/user_collection.h"
+#include "handlers/Chats/private_chat.h"
 
-struct chatter{
-    uint32_t chatter_id;
-};
 
-// no synchronisation yet
-struct chatter chatters[MAX_SERVED_CLIENTS_NUMBER];
-
-struct logger logger;
-
-void handle_greeting(struct event *event){
-    printf("Greeting came from: %d\n", event->generated_by);
-    chatters[event->generated_by].chatter_id = event->packet->header.sender_id;
-}
 
 void handle_start(struct event *event){
     struct logger_builder builder;
     builder.filename = "Server_logfile.txt";
     logger_init(&logger, &builder);
-}
 
-void handle_privmsg(struct event *event){
-    printf("Got private message\n");
-    for(int i = 0; i < MAX_SERVED_CLIENTS_NUMBER; i++){
-        if(chatters[i].chatter_id == event->packet->header.receiver_id){
-            printf("Found receiver of message: %d\n", i);
-            log_fixed_length_str(&logger, "Message rerouted\n",sizeof("Message rerouted\n"));
-            server_send_message(event->server, i, event->packet);
-        }
-    }
+    user_collection_init(&users);
+    private_chat_init(&pc);
 }
 
 void handle_shutting_down(struct event *event){
     logger_destroy(&logger);
+    user_collection_destroy(&users);
+    private_chat_destroy(&pc);
+}
+
+
+// this handlers will be moved to a different header file
+//right now no persistance will be implemented, but it will be added
+void user_login(struct event *event){
+    struct user *usr = ucol_find_user_by_logged_in_from(&users, event->generated_by);
+}
+
+void packets_handler(struct event *event){
+    switch(event->packet->header.op_code){
+        case LOGIN:
+            
+    }
+}
+
+void disconnect_handler(struct event *event){
+    ucol_find_user_by_logged_in_from(&users,event->generated_by)->is_logged_in = false;
 }
 
 //right now it just relays messages to destination
@@ -57,9 +59,11 @@ void event_handler_main(struct event *event, bool suppress_sending){
         break;
     
     case PACKET:
-        if(event->packet->header.op_code == GREETING)
-            handle_greeting(event);
-        if(event->packet->header.op_code == PRIVMSG)
-            handle_privmsg(event);
+        packets_handler(event);
+        break;
+
+    case CLIENT_SOCKET_HAS_DISCONNECTED:
+        disconnect_handler(event);
+        break;
     }
 };

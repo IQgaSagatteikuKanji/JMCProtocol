@@ -9,6 +9,7 @@
 #include "packet_net_transmission.h"
 #include "uconstants.h"
 #include "logger.h"
+#include "client_interface.h"
 
 struct address_v4 server;
 struct socket_xpa sock;
@@ -56,6 +57,21 @@ void recver_routine(){
     }
 }
 
+void test_routines(char *argv[]){
+    struct logger_builder builder;
+    if(!strcmp(argv[1], "sender")){
+        builder.filename = sender_logfile;
+        logger_init(&logger, &builder);
+        sender_routine();
+    } else{
+        builder.filename = recver_logfile;
+        logger_init(&logger, &builder);
+        perror("logfile initialised\n");
+        recver_routine();
+    }
+    logger_destroy(&logger);
+}
+
 int main(int argc, char *argv[]){
     signal(SIGINT, handler);
 
@@ -64,27 +80,16 @@ int main(int argc, char *argv[]){
 
     server.ip = "0.0.0.0";
     server.port = 5000;
-    socket_connect(&sock, &server);
-
-    trctrl_init(&ctrl, &sock);
-    if(argc < 2){
-        while(1){
-
-        }
-    } else{
-        perror("I got here\n");
-        struct logger_builder builder;
-        if(!strcmp(argv[1], "sender")){
-            builder.filename = sender_logfile;
-            logger_init(&logger, &builder);
-            sender_routine();
-        } else{
-            builder.filename = recver_logfile;
-            perror("Trying to create a logfile\n");
-            logger_init(&logger, &builder);
-            perror("logfile initialised\n");
-            recver_routine();
-        }
-        logger_destroy(&logger);
+    if(socket_connect(&sock, &server) < 0){
+        printf("Fatal failure: Failed to connect to a server.\n");
+        handler(SIGINT);
     }
+    trctrl_init(&ctrl, &sock);
+
+    if(argc == 2){
+        test_routines(argv);
+    }
+    
+    
 }
+

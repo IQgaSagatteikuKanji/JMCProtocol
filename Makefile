@@ -2,7 +2,8 @@ GCC=gcc
 FLAGS=-c
 UNIVERSAL_LIBS=-I./universal
 
-all: server client
+all: 
+	echo "It will not yet compile because its not connected"
 
 server: logger.o XDR_representation.o threads_proxy.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o event_handler_entry.o events.o server_control.o server_main.o 
 	$(GCC) -pthread $^ -o server_app

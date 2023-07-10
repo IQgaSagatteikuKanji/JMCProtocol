@@ -27,8 +27,9 @@ void handler(int signo){
     exit(0);
 }
 
-void command_actions_delegate(enum COMMAND_CODES code);
+void command_actions_delegate(enum COMMAND_CODES code, char *command);
 void login(uint32_t name);
+void privmsg(uint32_t name, char *command);
 
 int main(int argc, char *argv[]){
     signal(SIGINT, handler);
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]){
 
     char command[COMMAND_MAX_LENGTH + 1];
 	bool infinite_loop = true;
-	enum COMMAND_CODES ccode = NOOP;
+	enum COMMAND_CODES ccode = CC_NOOP;
 
 	while(infinite_loop){
 		printf("%s", menu_text);
@@ -55,8 +56,8 @@ int main(int argc, char *argv[]){
 
 		ccode = get_command_code_from_str(command);
 
-        command_actions_delegate(ccode);
-		if(ccode == EXIT){
+        command_actions_delegate(ccode, command);
+		if(ccode == CC_EXIT){
 			infinite_loop = false;
 		}
 	}   
@@ -65,9 +66,11 @@ int main(int argc, char *argv[]){
 
 void command_actions_delegate(enum COMMAND_CODES code){
     switch(code){
-        case LOGIN:
+        case CC_LOGIN:
             login(my_id);
             break;
+        case CC_PRIVMSG:
+
     }
 }
 
@@ -88,4 +91,24 @@ void login(uint32_t name){
     } else{
         printf("Failed to log in\n");
     }
+}
+
+void privmsg(uint32_t name, char *command){
+    uint32_t recipient;
+    char *payload = NULL;
+    parse_msg(command, &recipient, &payload);
+
+    struct packet pack;
+    packet_init(&pack);
+    pack.header.id = message_id++;
+    pack.header.op_code = PRIVMSG;
+    pack.header.receiver_id = recipient;
+    pack.header.sender_id = my_id;
+    pack.header.payload_length = strlen(payload);
+    pack.payload = payload;
+
+    trctrl_send(&ctrl, &pack);
+
+    //also frees payload string
+    packet_destroy(&pack);
 }

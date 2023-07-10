@@ -61,7 +61,7 @@ void NACK_response(struct server_context *sercon, uint32_t client, uint16_t resp
 
 
 // this handlers will be moved to a different header file
-//right now no persistance will be implemented, but it will be added
+// They are easy to write, so wouldnt take much time
 void user_login(struct event *event){
     struct user *usr = ucol_find_user_by_id(&users, event->packet->header.sender_id);
     if(usr == NULL){
@@ -84,7 +84,16 @@ void user_login(struct event *event){
     }
 }
 
-
+void privmsg(struct event *event){
+    struct user *usr = ucol_find_user_by_id(&users, event->packet->header.receiver_id);
+    if(usr != NULL && usr->is_logged_in){
+        server_send_message(event->server, usr->logged_in_from, event->packet);
+        ACK_response(event->server, event->generated_by, event->packet->header.id);
+    }
+    else{
+        NACK_response(event->server, event->generated_by, NACK, event->packet->header.id);
+    }
+}
 
 void packets_handler(struct event *event){
     switch(event->packet->header.op_code){
@@ -92,6 +101,7 @@ void packets_handler(struct event *event){
             user_login(event);
             break;
         case PRIVMSG:
+            privmsg(event);
             break;
     }
 }

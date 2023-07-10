@@ -52,14 +52,3 @@ socket_proxy.o: ./universal/socket_proxy.c
 clean: 
 	rm *.o
 
-
-scenario1: server client
-	timeout -k 8 -s SIGINT 8 ./server_app &
-	sleep 2
-	./client_app recver &
-	sleep 2
-	./client_app sender &
-	sleep 2
-
-wait:
-	sleep 4

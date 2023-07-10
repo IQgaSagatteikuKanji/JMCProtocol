@@ -15,6 +15,8 @@ struct address_v4 server;
 struct socket_xpa sock;
 struct trctrl ctrl;
 struct logger logger;
+uint32_t my_id = 3;
+uint32_t message_id = 0;
 
 const char *sender_logfile = "sender_logfile.txt";
 const char *recver_logfile = "recver_logfile.txt";
@@ -25,52 +27,8 @@ void handler(int signo){
     exit(0);
 }
 
-void sender_routine(){
-    struct packet packet;
-    packet_init(&packet);
-    packet.header.op_code = PRIVMSG;
-    packet.header.receiver_id = 1;
-    trctrl_send(&ctrl, &packet);
-    char resp[] = "Message sent\n";
-    log_fixed_length_str(&logger, resp, sizeof(resp));
-}
-
-void recver_routine(){
-    struct packet packet;
-    packet_init(&packet);
-
-    packet.header.op_code = GREETING;
-    packet.header.sender_id = 1;
-    perror("Sending greetings\n");
-    int error = trctrl_send(&ctrl, &packet);
-
-    perror("Receiving data\n");
-    int res = trctrl_receive(&ctrl, &packet);
-    if(res >= 0){
-        char resp[] = "Got message successfully\n"; 
-        perror(resp);
-        log_fixed_length_str(&logger, resp, sizeof(resp));
-    } else{
-        char resp[] = "Connection was obliterated\n";
-        perror(resp); 
-        log_fixed_length_str(&logger, resp, sizeof(resp));
-    }
-}
-
-void test_routines(char *argv[]){
-    struct logger_builder builder;
-    if(!strcmp(argv[1], "sender")){
-        builder.filename = sender_logfile;
-        logger_init(&logger, &builder);
-        sender_routine();
-    } else{
-        builder.filename = recver_logfile;
-        logger_init(&logger, &builder);
-        perror("logfile initialised\n");
-        recver_routine();
-    }
-    logger_destroy(&logger);
-}
+void command_actions_delegate(enum COMMAND_CODES code);
+void login(uint32_t name);
 
 int main(int argc, char *argv[]){
     signal(SIGINT, handler);
@@ -86,10 +44,48 @@ int main(int argc, char *argv[]){
     }
     trctrl_init(&ctrl, &sock);
 
-    if(argc == 2){
-        test_routines(argv);
-    }
-    
+    char command[COMMAND_MAX_LENGTH + 1];
+	bool infinite_loop = true;
+	enum COMMAND_CODES ccode = NOOP;
+
+	while(infinite_loop){
+		printf("%s", menu_text);
+		memset(command, 0, COMMAND_MAX_LENGTH);
+		fgets(command, COMMAND_MAX_LENGTH, stdin);
+
+		ccode = get_command_code_from_str(command);
+
+        command_actions_delegate(ccode);
+		if(ccode == EXIT){
+			infinite_loop = false;
+		}
+	}   
     
 }
 
+void command_actions_delegate(enum COMMAND_CODES code){
+    switch(code){
+        case LOGIN:
+            login(my_id);
+            break;
+    }
+}
+
+void login(uint32_t name){
+    struct packet pack;
+    packet_init(&pack);
+    pack.header.id = message_id++;
+    pack.header.op_code = LOGIN;
+    pack.header.sender_id = name;
+
+    trctrl_send(&ctrl, &pack);
+
+    packet_destroy(&pack);
+
+    trctrl_receive(&ctrl, &pack);
+    if(pack.header.op_code == ACK){
+        printf("Successfully logged in\n");
+    } else{
+        printf("Failed to log in\n");
+    }
+}

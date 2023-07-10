@@ -6,23 +6,7 @@
 // Contracts:
 // - Allocates memory for destination and transfers ownership
 
-struct archiver{
+#define MAX_SIZE_ARCHIVED_PACKET 1024
 
-};
-
-struct string{
-    uint32_t length;
-    char *str;
-};
-
-void archive_string(struct archiver *archiver, struct string *src, struct string *dest);
-void archive_string(struct achiver *archiver, char *src, uint32_t length, struct string *dest);
-
-void dearchive_string(struct achiver *archiver, struct string *src, struct string *dest);
-void dearchive_string(struct achiver *archiver, char *src, uint32_t length, struct string *dest);
-
-void string_init(struct string *str);
-void string_destroy(struct string *str);
-
-void archiver_init(struct archiver *archiver);
-void archiver_destroy(struct archiver *archiver);
+void archive_string(char *src, uint32_t length, char *dest, uint32_t *output_length);
+void dearchive_string(char *src, uint32_t length, char *dest, uint32_t *output_length);

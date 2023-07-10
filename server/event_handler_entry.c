@@ -1,5 +1,7 @@
 #include "event_handler_entry.h"
+
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "uconstants.h"
 #include "server_parameters.h"
@@ -27,17 +29,70 @@ void handle_shutting_down(struct event *event){
     private_chat_destroy(&pc);
 }
 
+void ACK_response(struct server_context *sercon, uint32_t client,uint32_t id){
+    struct packet pack;
+    packet_init(&pack);
+    pack.header.id = id;
+    pack.header.op_code = ACK;
+
+    server_send_message(sercon, client, &pack);
+    packet_destroy(&pack);
+}
+
+void general_NACK_response(struct server_context *sercon, uint32_t client,uint32_t id){
+    struct packet pack;
+    packet_init(&pack);
+    pack.header.id = id;
+    pack.header.op_code = NACK;
+
+    server_send_message(sercon, client, &pack);
+    packet_destroy(&pack);
+}
+
+void NACK_response(struct server_context *sercon, uint32_t client, uint16_t response_code, uint32_t id){
+    struct packet pack;
+    packet_init(&pack);
+    pack.header.id = id;
+    pack.header.op_code = response_code;
+
+    server_send_message(sercon, client, &pack);
+    packet_destroy(&pack);
+}
+
 
 // this handlers will be moved to a different header file
 //right now no persistance will be implemented, but it will be added
 void user_login(struct event *event){
-    struct user *usr = ucol_find_user_by_logged_in_from(&users, event->generated_by);
+    struct user *usr = ucol_find_user_by_id(&users, event->packet->header.sender_id);
+    if(usr == NULL){
+        struct user user;
+        user_init(&user);
+        user.id = event->packet->header.sender_id;
+        user.logged_in_from = event->generated_by;
+        user.is_logged_in = true;
+        ucol_add_user(&users, &user);
+
+        ACK_response(event->server, event->generated_by, event->packet->header.id);
+    } 
+    else if(!usr->is_logged_in){
+        usr->is_logged_in = true;
+        usr->logged_in_from = event->generated_by;
+
+        ACK_response(event->server, event->generated_by, event->packet->header.id);
+    } else{
+        general_NACK_response(event->server, event->generated_by, event->packet->header.id);
+    }
 }
+
+
 
 void packets_handler(struct event *event){
     switch(event->packet->header.op_code){
         case LOGIN:
-            
+            user_login(event);
+            break;
+        case PRIVMSG:
+            break;
     }
 }
 

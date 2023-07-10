@@ -44,14 +44,15 @@ make scenario1
     - [ ] Downloading a file from a server
 
 #### Architecture (WIP)
-Right now its just a mirror of the specifications I was given with a slight organisation
 - [ ] Plan the architecture
   - [ ] Universal
-    - [ ] Chat logging
+    - [x] Chat logging
+    - [ ] Logging to files
     - [ ] File capabilities
   - [ ] Client side
   - [ ] Server side
-    - [ ] Saving/Loading settings
+    - [x] Settings of a server is in server_parameters.h
     - [ ] Safe restart
-    - [ ] Logging - Event sourcing?
+    - [x] Logging
+    - [x] Event driven architecture
     - [ ] Chats and sessions list indication

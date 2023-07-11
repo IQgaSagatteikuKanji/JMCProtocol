@@ -31,3 +31,28 @@ int thread_cancel(struct thread *thr){
 
     return pthread_cancel(thr->thread);
 }
+
+
+int mutex_init(struct mutex *mutex){
+    assert(mutex != NULL);
+
+    return pthread_mutex_init(&mutex->mutex, NULL);
+}
+
+void mutex_destroy(struct mutex *mutex){
+    assert(mutex != NULL);
+
+    pthread_mutex_destroy(&mutex->mutex);
+}
+
+int mutex_lock(struct mutex *mutex){
+    assert(mutex != NULL);
+
+    return pthread_mutex_lock(&mutex->mutex);
+}
+
+int mutex_unlock(strict mutex *mutex){
+    assert(mutex != NULL);
+
+    return pthread_mutex_unlock(&mutex->mutex);
+}

@@ -22,7 +22,8 @@ struct user *ucol_find_user_by_username(struct user_collection *ucol, char *user
 struct user *ucol_find_user_by_id(struct user_collection *ucol, uint32_t id);
 struct user *ucol_find_user_by_logged_in_from(struct user_collection *ucol, uint32_t logged_in_from);
 
-void ucol_add_user(struct user_collection *ucol, struct user *user);
+//returns the pointer to the newly added user
+struct user *ucol_add_user(struct user_collection *ucol, struct user *user);
 void ucol_remove_user(struct user_collection *ucol, struct user *user);
 
 void ucol_allocate_for(struct user_collection *ucol, uint32_t users);

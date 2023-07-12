@@ -61,7 +61,7 @@ struct user *ucol_find_user_by_logged_in_from(struct user_collection *ucol, uint
     return NULL;
 }
 
-void ucol_add_user(struct user_collection *ucol, struct user *user)
+struct user *ucol_add_user(struct user_collection *ucol, struct user *user)
 {
     assert(ucol != NULL);
     assert(user != NULL);
@@ -80,6 +80,7 @@ void ucol_add_user(struct user_collection *ucol, struct user *user)
     // add user to the collection
     ucol->users[ucol->number_of_users] = *user;
     ucol->number_of_users++;
+    return ucol->users + (ucol->number_of_users - 1);
 }
 
 void ucol_fill_in_space(struct user_collection *ucol, uint32_t starting_from){

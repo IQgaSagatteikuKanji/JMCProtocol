@@ -11,6 +11,7 @@ struct packet_header{
     //user identifiers on a server
     uint32_t sender_id;
     uint32_t receiver_id;
+    uint32_t target;
 
     // alignment will be the same, in both cases there will be a Byte empty between packets
     // so Ill pack it to be more logical

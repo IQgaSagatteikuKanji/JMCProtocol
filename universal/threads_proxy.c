@@ -51,7 +51,7 @@ int mutex_lock(struct mutex *mutex){
     return pthread_mutex_lock(&mutex->mutex);
 }
 
-int mutex_unlock(strict mutex *mutex){
+int mutex_unlock(struct mutex *mutex){
     assert(mutex != NULL);
 
     return pthread_mutex_unlock(&mutex->mutex);

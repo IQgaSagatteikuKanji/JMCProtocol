@@ -43,7 +43,7 @@ struct private_chat *pccol_find_chat_by_two_users(struct pc_collection *pccol, u
     return NULL;
 }
 
-void pccol_add_pchat(struct pc_collection *pccol, struct private_chat *pc){
+struct private_Chat *pccol_add_pchat(struct pc_collection *pccol, struct private_chat *pc){
     assert(pccol != NULL);
     assert(pc != NULL);
 
@@ -61,6 +61,7 @@ void pccol_add_pchat(struct pc_collection *pccol, struct private_chat *pc){
     // add pc to collection
     pccol->pcs[pccol->count] = *pc;
     pccol->count++;
+    return pccol->pcs + (pccol->count - 1);
 }
 
 void pccol_fill_in_space(struct pc_collection *pccol, uint32_t starting_from){
@@ -107,4 +108,12 @@ void pccol_alocate_for(struct pc_collection *pccol, uint32_t chats){
 
     pccol->pcs = realloc(pccol->pcs, new_size * sizeof(struct private_chat));
     pccol->allocated_for = new_size;
+}
+
+struct private_chat *create_new_private_chat_between_users(struct pc_collection *pcs, uint32_t fid, uint32_t sid){
+    struct private_chat pc;
+    private_chat_init(&pc);
+
+    pc_set_recipients(&pc, fid, sid);
+    return pccol_add_pchat(pcs, &pc);
 }

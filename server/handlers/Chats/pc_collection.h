@@ -19,8 +19,9 @@ void pc_collection_destroy(struct pc_collection *pccol);
 
 // Doesn't care about the order of ids
 struct private_chat *pccol_find_chat_by_two_users(struct pc_collection *pccol, uint32_t fid, uint32_t sid);
+struct private_chat *create_new_private_chat_between_users(struct pc_collection *pcs, uint32_t fid, uint32_t sid);
 
-void pccol_add_pchat(struct pc_collection *pccol, struct private_chat *pc);
+struct private_chat *pccol_add_pchat(struct pc_collection *pccol, struct private_chat *pc);
 void pccol_remove_pchat(struct pc_collection *pccol, struct private_chat *pc);
 bool pccol_contains_pchat(struct pc_collection *pccol, struct private_chat *pc);
 

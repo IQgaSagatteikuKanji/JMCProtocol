@@ -12,7 +12,7 @@
 #include "handlers/Users/user_collection.h"
 #include "handlers/Chats/private_chat.h"
 
-
+// The client_persistent_data will be a reference to a user profile client has signed in
 
 void handle_start(struct event *event){
     struct logger_builder builder;
@@ -29,7 +29,7 @@ void handle_shutting_down(struct event *event){
     private_chat_destroy(&pc);
 }
 
-void ACK_response(struct server_context *sercon, uint32_t client,uint32_t id){
+void ACK_response(struct server_context *sercon, uint32_t client, uint32_t id){
     struct packet pack;
     packet_init(&pack);
     pack.header.id = id;
@@ -39,7 +39,7 @@ void ACK_response(struct server_context *sercon, uint32_t client,uint32_t id){
     packet_destroy(&pack);
 }
 
-void general_NACK_response(struct server_context *sercon, uint32_t client,uint32_t id){
+void general_NACK_response(struct server_context *sercon, uint32_t client, uint32_t id){
     struct packet pack;
     packet_init(&pack);
     pack.header.id = id;
@@ -109,6 +109,7 @@ void packets_handler(struct event *event){
 void disconnect_handler(struct event *event){
     ucol_find_user_by_logged_in_from(&users,event->generated_by)->is_logged_in = false;
 }
+
 
 //right now it just relays messages to destination
 void event_handler_main(struct event *event, bool suppress_sending){

@@ -30,5 +30,5 @@ int mutex_init(struct mutex *mutex);
 void mutex_destroy(struct mutex *mutex);
 
 int mutex_lock(struct mutex *mutex);
-int mutex_unlock(strict mutex *mutex);
+int mutex_unlock(struct mutex *mutex);
 

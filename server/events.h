@@ -9,10 +9,19 @@
 // Event types
 enum EVENT_TYPES{
     EVENT_NULL = 0,
+    // Is called by a threaded environment
     PACKET,
+    CLIENT_SOCKET_HAS_DISCONNECTED,
+
+    // Single threaded environment
     SERVER_IS_SHUTTING_DOWN,
     SERVER_STARTING,
-    CLIENT_SOCKET_HAS_DISCONNECTED
+
+    //plans for it are there, but actual dispatching and recovery is not yet implemented
+    // Two levels of recovery:
+    // Server internals tries to recover the parameters it had
+    // Server dispatches event for handlers to recover their state
+    SERVER_STARTING_TRY_RECOVER
 };
 
 struct event{

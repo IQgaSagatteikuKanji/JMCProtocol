@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
 void group_chat_init(struct group_chat *gc){
     assert(gc != NULL);

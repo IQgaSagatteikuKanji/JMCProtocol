@@ -11,6 +11,8 @@
 #include "server_state.h"
 #include "server_responses.h"
 
+#include "connection_handler.h"
+
 // The client_persistent_data will be a reference to a user profile client has signed in
 
 void handle_start(struct event *event){
@@ -33,7 +35,13 @@ void handle_shutting_down(struct event *event){
 }
 
 void packets_handler(struct event *event){
+    //some checks for all the packets
+    //add logic that requires loging in to start
+
     switch(event->packet->header.op_code){
+        case LOGIN:
+            user_login(event);
+            break;
         default:
             response_NACK(event);
     }

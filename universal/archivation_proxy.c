@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "LzmaEnc.h"
 #include "LzmaDec.h"
@@ -19,16 +20,16 @@ uint8_t *lzmaCompress(const uint8_t *input, uint32_t inputSize, uint32_t *output
 uint8_t *lzmaDecompress(const uint8_t *input, uint32_t inputSize, uint32_t *outputSize);
 
 
-void archive_string(char *src, uint32_t length, char *dest, uint32_t *output_length){
-	dest = lzmaCompress(src, length, output_length);
+void archive_string(char *src, uint32_t length, char **dest, uint32_t *output_length){
+	*dest = lzmaCompress(src, length, output_length);
 
     if(dest == NULL){
         printf("Error: couldn't compress a packet, dropping it\n");
     }
 }
 
-void dearchive_string(char *src, uint32_t length, char *dest, uint32_t *output_length){
-    dest = lzmaDecompress(src, length, output_length);
+void dearchive_string(char *src, uint32_t length, char **dest, uint32_t *output_length){
+    *dest = lzmaDecompress(src, length, output_length);
 
     if(dest == NULL){
         printf("Error: couldn't decompress a packet, dropping it\n");

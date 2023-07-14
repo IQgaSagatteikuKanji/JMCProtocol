@@ -35,7 +35,7 @@ struct chat_entry *build_chat_entry_from_packet(struct packet *pack){
 
 //this should go to server_responses
 //If I'll need to keep track of unsent messages, this could be a good point to do it
-void send_message_to_user(struct server *server,struct packet *pack, uint32_t global_user_id){
+void send_message_to_user(struct server_context *server,struct packet *pack, uint32_t global_user_id){
     struct user *usr = ucol_find_user_by_id(&users, global_user_id);
 
     if(usr != NULL && usr->is_logged_in){
@@ -45,7 +45,7 @@ void send_message_to_user(struct server *server,struct packet *pack, uint32_t gl
 
 
 #define NUMBER_OF_USERS_IN_PRIVATE_CHAT 2
-void relay_message_in_private_chat(struct server *server, struct private_chat *pc, struct packet *msg, uint32_t ignore){
+void relay_message_in_private_chat(struct server_context *server, struct private_chat *pc, struct packet *msg, uint32_t ignore){
     uint32_t users[NUMBER_OF_USERS_IN_PRIVATE_CHAT];
     pc_get_recipients(pc, users, users + 1);
 
@@ -90,7 +90,7 @@ void private_message(struct event *event){
     } else if(ucol_find_user_by_id(&users, receiver) != NULL){
         //if such a chat doesn't exist and the user exists
         pc = create_new_private_chat_between_users(&pcs, sender, receiver);
-        message_in_existing_private_chat(event, pc);
+        privmsg_in_existing_private_chat(event, pc);
         response_ACK(event);
     } else{
         //if chat doesn't exist and the user doesn't exist deny
@@ -99,7 +99,7 @@ void private_message(struct event *event){
 }
 
 
-void broadcast_to_group_chat(struct server *server,struct packet *pack, struct group_chat *gc, uint32_t sender){
+void broadcast_to_group_chat(struct server_context *server,struct packet *pack, struct group_chat *gc, uint32_t sender){
     struct id_collection *members = gc_get_list_of_listeners(gc);
     
     if(members != NULL){

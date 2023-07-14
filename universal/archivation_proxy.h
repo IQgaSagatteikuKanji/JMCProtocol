@@ -8,5 +8,5 @@
 
 #define MAX_SIZE_ARCHIVED_PACKET 1024
 
-void archive_string(char *src, uint32_t length, char *dest, uint32_t *output_length);
-void dearchive_string(char *src, uint32_t length, char *dest, uint32_t *output_length);
+void archive_string(char *src, uint32_t length, char **dest, uint32_t *output_length);
+void dearchive_string(char *src, uint32_t length, char **dest, uint32_t *output_length);

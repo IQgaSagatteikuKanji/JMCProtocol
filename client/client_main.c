@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
     socket_open(&sock);
 
     server.ip = "0.0.0.0";
-    server.port = 5000;
+    server.port = 5001;
     if(socket_connect(&sock, &server) < 0){
         printf("Fatal failure: Failed to connect to a server.\n");
         handler(SIGINT);

@@ -1,19 +1,23 @@
 GCC=gcc
 FLAGS=-c
+
+ARCHIVATION_LIBS=-I./lib_LZMA_SDK
 UNIVERSAL_LIBS=-I./universal
 SERVER_LIBS=-I./server
 SERVER_FUNCTIONALITY_LIBS=-I./server/handlers -I./server/handlers/Users -I./server/handlers/Chats -I./server/handlers/Data_structures 
 ALL_LIBS=$(UNIVERSAL_LIBS) $(SERVER_FUNCTIONALITY_LIBS) $(SERVER_LIBS)
 
-BARE_SERVER=logger.o XDR_representation.o threads_proxy.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o event_handler_entry.o events.o server_control.o server_main.o 
+ARCHIVER_OBJECTS=LzmaDec.o LzmaEnc.o LzFind.o CpuArch.o archivation_proxy.o
+BARE_SERVER=$(ARCHIVER_OBJECTS) logger.o XDR_representation.o threads_proxy.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o event_handler_entry.o events.o server_control.o server_main.o 
 SERVER_FUNCTIONALITY=server_state.o server_responses.o moderation_handler.o connection_handler.o chatting_handler.o id_collection.o private_chat.o pc_collection.o group_chat.o gc_collection.o chat_entry.o double_linked_list.o user.o user_collection.o
+
 
 all: client server
 
-server: $(BARE_SERVER) $(SERVER_FUNCTIONALITY)
+server: $(BARE_SERVER) $(SERVER_FUNCTIONALITY) $(ARCHIVER_OBJECTS)
 	$(GCC) -pthread $^ -o server_app
 
-client: logger.o XDR_representation.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o client_main.o client_interface.o
+client: $(ARCHIVER_OBJECTS) logger.o XDR_representation.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o client_main.o client_interface.o
 	$(GCC) $^ -o client_app
 
 
@@ -101,6 +105,21 @@ XDR_representation.o: ./universal/XDR_representation.c
 
 socket_proxy.o: ./universal/socket_proxy.c
 	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^
+
+archivation_proxy.o: ./universal/archivation_proxy.c
+	$(CC) $(FLAGS) -D_7ZIP_ST $(ARCHIVATION_LIBS) $(UNIVERSAL_LIBS) $^
+
+LzmaDec.o: ./lib_LZMA_SDK/LzmaDec.c
+	$(CC) $(FLAGS) -D_7ZIP_ST $(UNIVERSAL_LIBS) $^
+
+LzmaEnc.o: ./lib_LZMA_SDK/LzmaEnc.c
+	$(CC) $(FLAGS) -D_7ZIP_ST $(UNIVERSAL_LIBS) $^
+
+LzFind.o: ./lib_LZMA_SDK/LzFind.c
+	$(CC) $(FLAGS) -D_7ZIP_ST $(UNIVERSAL_LIBS) $^
+
+CpuArch.o: ./lib_LZMA_SDK/CpuArch.c
+	$(CC) $(FLAGS) -D_7ZIP_ST $(UNIVERSAL_LIBS) $^
 
 clean: 
 	rm *.o

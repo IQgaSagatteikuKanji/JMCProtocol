@@ -62,7 +62,6 @@ void thread_routine(struct thread_routine_parameters *params){
     while(server->working){
         
         socket_error = trctrl_receive(serving, &packet);
-        printf("Serving client. Error code: %d\n", socket_error);
 
         if(socket_error < 0){
             event.type = CLIENT_SOCKET_HAS_DISCONNECTED;
@@ -76,7 +75,7 @@ void thread_routine(struct thread_routine_parameters *params){
         packet_destroy(&packet);
 
         if(socket_error < 0){
-            perror("Client disconnected. Finishing up thread...\n");
+            printf("Client disconnected. Finishing up thread...\n");
             event_destroy(&event);
             server->waiting_for_clean_up[client] = true;
             server->clients_number--;

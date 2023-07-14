@@ -1,10 +1,11 @@
+#include "packet_net_transmission.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "packet_net_transmission.h"
 #include "XDR_representation.h"
-
+#include "archivation_proxy.h"
 
 void trctrl_init(struct trctrl *ctrl, struct socket_xpa *sock){
     assert(ctrl != NULL);
@@ -49,14 +50,20 @@ int trctrl_send(struct trctrl *ctrl, struct packet *pack){
     assert(ctrl != NULL);
     assert(ctrl->sock != NULL);
     
-    struct encoded_packet enc;
-    encoded_packet_init(&enc);
+    struct encoded_packet unarchived_enc;
+    encoded_packet_init(&unarchived_enc);
 
     // Archiver_archive added here
-    encode_packet(pack, &enc);
+    encode_packet(pack, &unarchived_enc);
+    assert(unarchived_enc.length <= MAX_LENGTH_OF_NET_TRANSMITTED_PACKET - LENGTH_DEFINING_HEADER_LENGTH);
 
+
+    struct encoded_packet enc;
+    archive_string(unarchived_enc.text, unarchived_enc.length, &enc.text, &enc.length);
+    encoded_packet_destroy(&unarchived_enc);
+    
+    assert(enc.length <= MAX_SIZE_ARCHIVED_PACKET);
     //converting to net transmittable
-    assert(enc.length < MAX_LENGTH_OF_NET_TRANSMITTED_PACKET - LENGTH_DEFINING_HEADER_LENGTH);
 
     struct encoded_packet nettr;
     encoded_packet_init(&nettr);
@@ -99,7 +106,7 @@ int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
         return error_code;
     }
     //check if the size of packet is smaller than defined by archiver
-    if(expected_length > MAX_LENGTH_OF_NET_TRANSMITTED_PACKET || expected_length == 0){
+    if(expected_length > MAX_SIZE_ARCHIVED_PACKET || expected_length == 0){
         return -1;
     }
     
@@ -109,10 +116,13 @@ int trctrl_receive(struct trctrl *ctrl, struct packet *pack){
         return error_code;
     }
     //dearchive packet
+    struct encoded_packet unarchived_enc;
+    dearchive_string(encmes.text, encmes.length, &unarchived_enc.text, &unarchived_enc.length);
+    encoded_packet_destroy(&encmes);
 
     //decode packet
-    decode_packet(&encmes, pack, 0);
-    encoded_packet_destroy(&encmes);
+    decode_packet(&unarchived_enc, pack, 0);
+    encoded_packet_destroy(&unarchived_enc);
 
     return 0;
 }

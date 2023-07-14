@@ -8,6 +8,7 @@ void group_chat_init(struct group_chat *gc){
 
     gc->chat_id = 0;
     gc->is_chat_banned = false;
+    gc->next_id = 0;
     
     dlist_init(&gc->msgs);
 
@@ -35,6 +36,7 @@ void gc_set_id(struct group_chat *gc, uint32_t id){
 void gc_add_message(struct group_chat *gc, struct chat_entry *msg){
     assert(gc != NULL);
 
+    msg->message_id = gc->next_id++;
     dlist_add_to_head(&gc->msgs, msg);
 }
 
@@ -104,5 +106,7 @@ bool gc_is_user_listening_to_gc(struct group_chat *gc, uint32_t user){
 struct id_collection *gc_get_list_of_listeners(struct group_chat *gc){
     assert(gc != NULL);
 
+
+    //if you change logic here and allocate memory, then go and free it everywhere this function is used!
     return &gc->listening;
 }

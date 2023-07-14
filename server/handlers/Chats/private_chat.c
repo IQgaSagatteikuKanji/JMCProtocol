@@ -8,6 +8,8 @@ void private_chat_init(struct private_chat *pc){
 
     pc->current_message_id = 0;
     pc->is_blocked_by = 0;
+    pc->next_id = 0;
+
     dlist_init(&pc->msgs);
     pc->users[0] = 0;
     pc->users[1] = 0;
@@ -30,6 +32,7 @@ bool pc_add_message(struct private_chat *pc, struct chat_entry *msg){
     assert(pc != NULL);
     assert(msg != NULL);
 
+    msg->message_id = pc->next_id++;
     dlist_add_to_head(&pc->msgs, msg);
 }
 
@@ -57,4 +60,17 @@ unsigned char pc_chat_was_blocked_by_index(struct private_chat *pc){
     assert(pc != NULL);
 
     return pc->is_blocked_by;
+}
+
+
+void pc_get_recipients(struct private_chat *pc, uint32_t *first, uint32_t *second){
+    assert(pc != NULL);
+
+    if(first != NULL){
+        *first = pc->users[0];
+    }
+
+    if(second != NULL){
+        *second = pc->users[1];
+    }
 }

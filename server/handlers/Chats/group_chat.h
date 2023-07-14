@@ -12,6 +12,7 @@
 //also needs mutex
 struct group_chat{
     uint32_t chat_id;
+    uint32_t next_id;
     struct id_collection mods;
     struct id_collection banned;
     struct id_collection listening;
@@ -40,4 +41,6 @@ bool gc_is_user_gc_moderator(struct group_chat *chat, uint32_t user);
 bool gc_is_user_banned_in_gc(struct group_chat *chat, uint32_t user);
 bool gc_is_user_listening_to_gc(struct group_chat *chat, uint32_t user);
 
+
+//doesn't allocate memory, doesn't transfer ownership
 struct id_collection *gc_get_list_of_listeners(struct group_chat *chat);

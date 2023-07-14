@@ -5,6 +5,7 @@
 
 
 // I plan to substitute it for hashtable later 
+// Do I need to make an iterator?
 struct id_collection{
     uint32_t *ids;
     uint32_t number_of_ids;

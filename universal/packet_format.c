@@ -15,6 +15,7 @@ void encode_header(struct packet_header *header, struct encoded_packet *encoded,
     c_offset += translate_uint32_to_XDR(&header->sender_id, encoded->text + c_offset);
     c_offset += translate_uint32_to_XDR(&header->receiver_id, encoded->text + c_offset);
     c_offset += translate_uint32_to_XDR(&header->target, encoded->text + c_offset);
+    c_offset += translate_uint32_to_XDR(&header->message_id, encoded->text + c_offset);
     c_offset += translate_uint16_to_XDR(&header->op_code, encoded->text + c_offset);
     c_offset += translate_uint16_to_XDR(&header->payload_length, encoded->text + c_offset);
 }
@@ -59,6 +60,7 @@ uint8_t decode_header(struct encoded_packet *encoded, struct packet_header *head
     c_offset += translate_XDR_to_uint32(encoded->text + c_offset, &header->sender_id);
     c_offset += translate_XDR_to_uint32(encoded->text + c_offset, &header->receiver_id);
     c_offset += translate_XDR_to_uint32(encoded->text + c_offset, &header->target);
+    c_offset += translate_XDR_to_uint32(encoded->text + c_offset, &header->message_id);
     c_offset += translate_XDR_to_uint16(encoded->text + c_offset, &header->op_code);
     c_offset += translate_XDR_to_uint16(encoded->text + c_offset, &header->payload_length);
 
@@ -80,6 +82,7 @@ void header_init(struct packet_header *header){
     header->sender_id = 0;
     header->receiver_id = 0;
     header->payload_length = 0;
+    header->message_id = 0;
 }
 
 void packet_init(struct packet *packet){

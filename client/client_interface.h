@@ -1,8 +1,8 @@
 #pragma once
 
 
+
 #define COMMAND_MAX_LENGTH 64u
-const char *prompt = "%s: ";
 enum COMMAND_CODES{
 	CC_NOOP = 0,
 	CC_ERROR_CODE,

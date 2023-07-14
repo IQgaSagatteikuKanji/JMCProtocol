@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void id_collection_init(struct id_collection *icol){
     assert(icol != NULL);

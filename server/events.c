@@ -11,4 +11,4 @@ void event_init(struct event *event){
     event->server = NULL;
     event->type = EVENT_NULL;
 }
-void event_destroy(){}
+void event_destroy(struct event *event){}

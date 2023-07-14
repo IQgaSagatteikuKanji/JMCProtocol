@@ -2,6 +2,8 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
+
 
 #define MAX(x, y) (x > y ? x : y)
 #define NEXT_SIZE_OF_ARRAY_FOR(x) (2 * x)
@@ -43,7 +45,7 @@ struct private_chat *pccol_find_chat_by_two_users(struct pc_collection *pccol, u
     return NULL;
 }
 
-struct private_Chat *pccol_add_pchat(struct pc_collection *pccol, struct private_chat *pc){
+struct private_chat *pccol_add_pchat(struct pc_collection *pccol, struct private_chat *pc){
     assert(pccol != NULL);
     assert(pc != NULL);
 

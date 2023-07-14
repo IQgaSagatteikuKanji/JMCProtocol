@@ -135,11 +135,11 @@ void dlist_clear(struct dlist *list){
     assert(list != NULL);
 
     while(list->head->next != NULL){
-        dlist_remove_after(list->head);
+        dlist_remove_node(&list->head);
     }
 }
 
 
-void dlist_is_empty(struct dlist *list){
+bool dlist_is_empty(struct dlist *list){
     return list->head == NULL;
 }

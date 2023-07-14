@@ -6,6 +6,7 @@
 #include "chat_entry.h"
 #include "id_collection.h"
 #include "user.h"
+#include "double_linked_list.h"
 
 
 //also needs mutex

@@ -30,7 +30,7 @@ void private_message(struct event *event){
     } else if(ucol_find_user_by_id(&users, receiver) != NULL){
         //if such a chat doesn't exist and the user exists
         pc = create_new_private_chat_between_users(&pcs, sender, receiver);
-        message_in_existing_private_chat(event, &pc);
+        message_in_existing_private_chat(event, pc);
         response_ACK(event);
     } else{
         //if chat doesn't exist and the user doesn't exist deny
@@ -38,7 +38,9 @@ void private_message(struct event *event){
     }
 }
 
-void send_message_in_existing_group_chat(struct event *event, struct group_chat *gc);
+void send_message_in_existing_group_chat(struct event *event, struct group_chat *gc){
+    
+}
 
 void group_message(struct event *event){
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.receiver_id);

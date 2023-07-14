@@ -27,6 +27,8 @@ void handler(int signo){
     exit(0);
 }
 
+const char *menu_text = "Placeholder: ";
+
 void command_actions_delegate(enum COMMAND_CODES code, char *command);
 void login(uint32_t name);
 void privmsg(uint32_t name, char *command);
@@ -64,13 +66,13 @@ int main(int argc, char *argv[]){
     
 }
 
-void command_actions_delegate(enum COMMAND_CODES code){
+void command_actions_delegate(enum COMMAND_CODES code, char *command){
     switch(code){
         case CC_LOGIN:
             login(my_id);
             break;
         case CC_PRIVMSG:
-
+            break;
     }
 }
 

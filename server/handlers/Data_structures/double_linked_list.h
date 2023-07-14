@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #include "chat_entry.h"
 
 
@@ -30,4 +32,4 @@ void dlist_remove_from_tail(struct dlist *list);
 void dlist_remove_id(struct dlist *list, uint32_t id);
 
 void dlist_clear(struct dlist *list);
-void dlist_is_empty(struct dlist *list);
+bool dlist_is_empty(struct dlist *list);

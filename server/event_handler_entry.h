@@ -1,5 +1,7 @@
 #pragma once
+
 #include <stdbool.h>
+
 #include "events.h"
 
 // If suppress_sending is set 

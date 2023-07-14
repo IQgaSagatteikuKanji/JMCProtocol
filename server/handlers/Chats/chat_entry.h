@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-#include "double_linked_list.h"
-
 enum CHAT_ENTRY_TYPES{
     ERROR_ENTRY = 0,
     MESSAGE

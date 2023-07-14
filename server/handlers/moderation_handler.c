@@ -13,7 +13,7 @@ bool is_client_host_admin(struct event *event){
 bool is_client_mod_in_group(struct event *event, struct group_chat *gc){
     struct user *usr = event->client_persistent_data;
     
-    return icol_contains(&gc->mods, usr->id) != NULL;
+    return icol_contains(&gc->mods, usr->id);
 }
 
 void permaban_user_handler(struct event *event){

@@ -1,6 +1,7 @@
 #include "client_interface.h"
 
-
+#include <stdlib.h>
+#include <string.h>
 
 const char help[] = "help";
 const char download_file[] = "download";
@@ -14,7 +15,7 @@ const char edit_message[] = "edit";
 const char delete_message[] = "delete"; 
 const char private_message[] = "privmsg";
 const char group_message[] = "msg";
-const char login[] = "login";
+const char login_prompt[] = "login";
 const char join_group_chat[] = "join";
 const char exit_app[] = "exit";
 
@@ -22,7 +23,7 @@ const char exit_app[] = "exit";
 enum COMMAND_CODES get_command_code_from_str(char *str){
 	if(!strncmp(join_group_chat, str, sizeof(join_group_chat) - 1)) return CC_JOIN_GROUP_CHAT;
 	if(!strncmp(exit_app, str, sizeof(exit_app) - 1)) return CC_EXIT;
-	if(!strncmp(login, str, sizeof(login) - 1)) return CC_LOGIN;
+	if(!strncmp(login_prompt, str, sizeof(login_prompt) - 1)) return CC_LOGIN;
 	if(!strncmp(group_message, str, sizeof(group_message) - 1)) return CC_GROUPMSG;
 
 	if(!strncmp(private_message, str, sizeof(private_message) - 1)) return CC_PRIVMSG;

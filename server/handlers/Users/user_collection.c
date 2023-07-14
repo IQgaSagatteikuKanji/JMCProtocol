@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 #define MAX(x, y) (x > y ? x : y)
 #define NEXT_SIZE_OF_ARRAY_FOR(x) (2 * x)
@@ -113,7 +114,7 @@ void ucol_remove_user(struct user_collection *ucol, struct user *user){
 void ucol_allocate_for(struct user_collection *ucol, uint32_t users){
     assert(ucol != NULL);
     //otherwise the memory might leak if incorrectly called
-    assert(ucol->users <= users);
+    assert(ucol->number_of_users <= users);
 
     // max is in case it overflows
     uint32_t new_size = NEXT_SIZE_OF_ARRAY_FOR(users);

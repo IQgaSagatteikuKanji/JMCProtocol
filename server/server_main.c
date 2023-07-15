@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
     server_started = 1;
 
     arguments_parser(argc, argv);
-    printf("Hosting at %s:%d\nMax served clients number: %d\n", server.address.ip, server.address.port, server.max_served_clients_number);
+    printf("Hosting at %s:%d\nMax served clients number: %d\n", server.address.ip, server.address.port, MAX_SERVED_CLIENTS_NUMBER);
 
     printf("Starting server...\n");
     server_start(&server);
@@ -50,7 +50,7 @@ extern char *optarg;
 void arguments_parser(int argc, char *argv[]){
     int opt = 0;
 
-    while ((opt = getopt(argc, argv, "i:p:m:")) != -1) {
+    while ((opt = getopt(argc, argv, "i:p:")) != -1) {
         switch (opt) {
             case 'i':
                server.address.ip = calloc(1, strlen(optarg));
@@ -59,11 +59,8 @@ void arguments_parser(int argc, char *argv[]){
             case 'p':
                 server.address.port = atoi(optarg);
                 break;
-            case 'm':
-                server.max_served_clients_number = atoi(optarg);
-                break;
             default: /* '?' */
-                fprintf(stderr, "Usage: %s [-i IPv4_address] [-p port] [-m max_clients] \n", argv[0]);
+                fprintf(stderr, "Usage: %s [-i IPv4_address] [-p port]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }

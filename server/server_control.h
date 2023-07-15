@@ -27,9 +27,6 @@ struct server_context{
     
     //immutable
     struct address_v4 address;
-
-    //immutable
-    uint32_t max_served_clients_number;
     
     //immutable
     struct socket_xpa host_sock;

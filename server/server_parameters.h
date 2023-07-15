@@ -8,4 +8,6 @@
 #define EVENT_HANDLER event_handler_main
 
 #define ACTIVE_QUEUE_SIZE 5
+
+//configure to be changeable later
 #define MAX_SERVED_CLIENTS_NUMBER 2

@@ -33,3 +33,5 @@ void dlist_remove_id(struct dlist *list, uint32_t id);
 
 void dlist_clear(struct dlist *list);
 bool dlist_is_empty(struct dlist *list);
+
+struct dlist_node *dlist_find_node_by_message_id(struct dlist *list, uint32_t id);

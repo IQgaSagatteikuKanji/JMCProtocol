@@ -44,3 +44,4 @@ bool gc_is_user_listening_to_gc(struct group_chat *chat, uint32_t user);
 
 //doesn't allocate memory, doesn't transfer ownership
 struct id_collection *gc_get_list_of_listeners(struct group_chat *chat);
+struct chat_entry *gc_find_chat_entry_by_message_id(struct group_chat *chat, uint32_t message_id);

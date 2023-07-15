@@ -111,3 +111,14 @@ struct id_collection *gc_get_list_of_listeners(struct group_chat *gc){
     //if you change logic here and allocate memory, then go and free it everywhere this function is used!
     return &gc->listening;
 }
+
+struct chat_entry *gc_find_chat_entry_by_message_id(struct group_chat *chat, uint32_t message_id){
+    assert(chat != NULL);
+
+    struct dlist_node *node = dlist_find_node_by_message_id(&chat->msgs, message_id);
+    if(node == NULL){
+        return NULL;
+    }
+
+    return &node->msg;
+}

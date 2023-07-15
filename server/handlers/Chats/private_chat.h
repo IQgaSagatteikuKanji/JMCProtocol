@@ -30,3 +30,5 @@ void pc_clear(struct private_chat *pc);
 bool pc_is_pc_blocked(struct private_chat *pc);
 unsigned char pc_chat_was_blocked_by_index(struct private_chat *pc);
 
+struct chat_entry *pc_find_chat_entry_by_message_id(struct private_chat *pc, uint32_t message_id);
+

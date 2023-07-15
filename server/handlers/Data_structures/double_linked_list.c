@@ -143,3 +143,17 @@ void dlist_clear(struct dlist *list){
 bool dlist_is_empty(struct dlist *list){
     return list->head == NULL;
 }
+
+struct dlist_node *dlist_find_node_by_message_id(struct dlist *list, uint32_t id){
+    assert(list != NULL);
+
+    struct dlist_node *node = list->head;
+
+    while(node != NULL){
+        if(node->msg.message_id == id){
+            return node;
+        }
+    }
+
+    return node;
+}

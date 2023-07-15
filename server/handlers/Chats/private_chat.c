@@ -74,3 +74,14 @@ void pc_get_recipients(struct private_chat *pc, uint32_t *first, uint32_t *secon
         *second = pc->users[1];
     }
 }
+
+struct chat_entry *pc_find_chat_entry_by_message_id(struct private_chat *chat, uint32_t message_id){
+    assert(chat != NULL);
+
+    struct dlist_node *node = dlist_find_node_by_message_id(&chat->msgs, message_id);
+    if(node == NULL){
+        return NULL;
+    }
+
+    return &node->msg;
+}

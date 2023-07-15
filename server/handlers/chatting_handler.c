@@ -188,10 +188,76 @@ void delete_private_message(struct event *event){
     }
 }
 
+//add the similar function to deletion later, I forgot about them
+bool authorised_to_edit(struct user *usr, struct chat_entry *cent){
+    return cent->chatter_id == usr->id;
+}
+
+//also move it somewhere
+struct packet *produce_packet_from_chat_entry(struct chat_entry *entry, uint32_t receiver){
+    struct packet *pack = calloc(1, sizeof(struct packet));
+    packet_init(pack);
+    pack->header.message_id = entry->message_id;
+    pack->header.op_code = entry->type;
+    pack->header.payload_length= entry->load_length;
+    pack->header.receiver_id = receiver;
+    pack->header.sender_id = entry->chatter_id;
+    pack->payload = entry->load;
+    
+    return pack;
+}
 
 
-void edit_group_message(struct event *event);
-void edit_private_message(struct event *event);
+void edit_group_message(struct event *event){
+    struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.receiver_id);
+    if(gc == NULL){
+        response_NACK(event);
+    }
+
+    struct chat_entry *cent = gc_find_chat_entry_by_message_id(gc, event->packet->header.target);
+    if(cent == NULL){
+        response_NACK(event);
+    }
+    if(!authorised_to_edit(event->client_persistent_data, cent)){
+        response_NACK(event);
+    }
+
+    free(cent->load);
+    cent->load_length = event->packet->header.payload_length;
+    cent->load = calloc(1, cent->load_length);
+    strncpy(cent->load, event->packet->payload, cent->load_length);
+
+    struct packet *pack = produce_packet_from_chat_entry(cent, event->packet->header.receiver_id);
+    broadcast_to_group_chat(event->server, pack, gc, event->packet->header.sender_id);
+
+    response_ACK(event);
+}
+
+
+void edit_private_message(struct event *event){
+    struct private_chat *pc = pccol_find_chat_by_two_users(&pcs, event->packet->header.sender_id, event->packet->header.receiver_id);
+    if(pc == NULL){
+        response_NACK(event);
+    }
+
+    struct chat_entry *cent = pc_find_chat_entry_by_message_id(pc, event->packet->header.target);
+    if(cent == NULL){
+        response_NACK(event);
+    }
+    if(!authorised_to_edit(event->client_persistent_data, cent)){
+        response_NACK(event);
+    }
+
+    free(cent->load);
+    cent->load_length = event->packet->header.payload_length;
+    cent->load = calloc(1, cent->load_length);
+    strncpy(cent->load, event->packet->payload, cent->load_length);
+
+    struct packet *pack = produce_packet_from_chat_entry(cent, event->packet->header.receiver_id);
+    relay_message_in_private_chat(event->server, pc, pack, event->packet->header.sender_id);
+    
+    response_ACK(event);
+}
 
 void create_group(struct event *event){
     struct group_chat gc;

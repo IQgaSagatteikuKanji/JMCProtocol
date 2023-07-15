@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "socket_proxy.h"
 #include "internet_address.h"
@@ -29,12 +30,16 @@ void handler(int signo){
 
 const char *menu_text = "Placeholder: ";
 
+void arguments_parser(int argc, char *argv[]);
+
 void command_actions_delegate(enum COMMAND_CODES code, char *command);
 void login(uint32_t name);
 void privmsg(uint32_t name, char *command);
 
 int main(int argc, char *argv[]){
     signal(SIGINT, handler);
+
+    arguments_parser(argc, argv);
 
     socket_init(&sock);
     socket_open(&sock);
@@ -113,4 +118,29 @@ void privmsg(uint32_t name, char *command){
 
     //also frees payload string
     packet_destroy(&pack);
+}
+
+extern char *optarg;
+void arguments_parser(int argc, char *argv[]){
+    int opt = 0;
+
+    while ((opt = getopt(argc, argv, "i:p:u:")) != -1) {
+        switch (opt) {
+            case 'i':
+               server.ip = calloc(1, strlen(optarg));
+               strcpy(server.ip, optarg);
+               break;
+            case 'p':
+                server.port = atoi(optarg);
+                break;
+            case 'u':
+                my_id = atoi(optarg);
+                break;
+            default: /* '?' */
+                fprintf(stderr, "Usage: %s [-i IPv4_address] [-p port] [-u user_id]\n", argv[0]);
+                exit(EXIT_FAILURE);
+        }
+    }
+
+    // parameters should be cleaned up, but alas
 }

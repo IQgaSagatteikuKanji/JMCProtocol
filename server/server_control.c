@@ -18,6 +18,7 @@ void server_init(struct server_context *server){
 
     server->address.ip = IP_ADDRESS;
     server->address.port = PORT_NUMBER;
+    server->max_served_clients_number = MAX_SERVED_CLIENTS_NUMBER;
 
     server->event_handler_main = EVENT_HANDLER;
 
@@ -85,7 +86,7 @@ void thread_routine(struct thread_routine_parameters *params){
 }
 
 bool server_can_serve_next_client(struct server_context *server){
-    return (server->clients_number < MAX_SERVED_CLIENTS_NUMBER) && (server->working);
+    return (server->clients_number < server->max_served_clients_number) && (server->working);
 }
 
 void server_clean_up_thread_if_finished(struct server_context *server, uint16_t thread){

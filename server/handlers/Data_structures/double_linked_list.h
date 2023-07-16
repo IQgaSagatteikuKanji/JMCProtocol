@@ -29,7 +29,7 @@ void dlist_add_to_tail(struct dlist *list, struct chat_entry *elem_to_add);
 void dlist_remove_from_head(struct dlist *list);
 void dlist_remove_from_tail(struct dlist *list);
 
-void dlist_remove_id(struct dlist *list, uint32_t id);
+int dlist_remove_id(struct dlist *list, uint32_t id);
 
 void dlist_clear(struct dlist *list);
 bool dlist_is_empty(struct dlist *list);

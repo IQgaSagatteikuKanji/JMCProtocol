@@ -112,14 +112,15 @@ void dlist_remove_node(struct dlist_node **node){
     free(to_delete);
 }
 
-void dlist_remove_id(struct dlist *list, uint32_t id){
+int dlist_remove_id(struct dlist *list, uint32_t id){
     assert(list != NULL);
+    char deleted = 0;
     if(list->head != NULL){
         struct dlist_node **ptr = &list->head;
         char deleted = 0;
 
-        while((*ptr)->next != NULL && !deleted){
-            if((*ptr)->next->msg.message_id == id){
+        while((*ptr) != NULL && !deleted){
+            if((*ptr)->msg.message_id == id){
                 deleted = 1;
                 dlist_remove_node(ptr);
             } else{
@@ -128,6 +129,7 @@ void dlist_remove_id(struct dlist *list, uint32_t id){
         }
 
     }
+    return deleted;
 }
 
 

@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include <ncurses.h>
 
 #define COMMAND_MAX_LENGTH 64u
 enum COMMAND_CODES{
@@ -26,3 +26,4 @@ enum COMMAND_CODES{
 enum COMMAND_CODES get_command_code_from_str(char *str);
 
 void parse_msg(const char *str, int *recipient, char **payload);
+

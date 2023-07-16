@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define MAX(x, y) (x > y ? x : y)
 #define NEXT_SIZE_OF_ARRAY_FOR(x) (2 * x)

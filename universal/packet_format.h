@@ -29,7 +29,7 @@ struct packet{
 };
 
 struct encoded_packet{
-    uint16_t length;
+    uint32_t length;
     char *text;
 };
 

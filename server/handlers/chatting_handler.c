@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "server_state.h"
 #include "user_collection.h"
@@ -50,9 +51,7 @@ void relay_message_in_private_chat(struct server_context *server, struct private
     pc_get_recipients(pc, users, users + 1);
 
     for(uint32_t i = 0; i < NUMBER_OF_USERS_IN_PRIVATE_CHAT; i++){
-        if(users[i] != ignore){
-            send_message_to_user(server, msg, users[i]);
-        }
+        send_message_to_user(server, msg, users[i]);
     }
 }
 
@@ -75,14 +74,16 @@ void private_message(struct event *event){
     struct user *usr = event->client_persistent_data;
     uint32_t sender = event->packet->header.sender_id;
     uint32_t receiver = event->packet->header.receiver_id;
-
+    
+    perror("I've received a personal package");
     struct private_chat *pc = pccol_find_chat_by_two_users(&pcs, sender, receiver);
     if(pc != NULL){
+        perror("Found the chat, trying to send the message");
         //if such a chat exists
-
         if(!pc_is_pc_blocked(pc)){
             uint32_t mid = privmsg_in_existing_private_chat(event, pc);
-            response_ACK_set_message_id(event, mid);
+            perror("Successfully sent");
+            //response_ACK_set_message_id(event, mid);
         } else{
             response_NACK(event);
         }
@@ -91,7 +92,7 @@ void private_message(struct event *event){
         //if such a chat doesn't exist and the user exists
         pc = create_new_private_chat_between_users(&pcs, sender, receiver);
         privmsg_in_existing_private_chat(event, pc);
-        response_ACK(event);
+        //response_ACK(event);
     } else{
         //if chat doesn't exist and the user doesn't exist deny
         response_NACK(event);

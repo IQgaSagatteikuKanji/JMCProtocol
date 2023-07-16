@@ -4,6 +4,8 @@
 #include <stdlib.h>
 
 #define DEFAULT_MESSAGE_RENDER_HEIGHT 5
+//that can be updated dynamically, which i'll try to do later
+#define RENDER_THIS_NUMBER_AT_ONCE 6
 #define DEFAULT_MESSAGE_HEADER_DELIMETER " @ "
 
 void messages_init(struct messages *msgs, uint32_t height, uint32_t width){
@@ -16,7 +18,7 @@ void messages_init(struct messages *msgs, uint32_t height, uint32_t width){
     msgs->delimeter = DEFAULT_MESSAGE_HEADER_DELIMETER;
 
     msgs->field = newwin(msgs->height, msgs->width, 0, 0);
-    client_dlist_init(&msgs->entries, msgs->height / msgs->message_height);
+    client_dlist_init(&msgs->entries, RENDER_THIS_NUMBER_AT_ONCE);
 }
 
 void messages_destroy(struct messages *msgs){
@@ -37,7 +39,7 @@ int draw_chat_entry(struct messages *msgs, struct client_chat_entry *cent){
     if(!cent->type == PRIVATE_MESSAGE){
         wprintw(msgs->field, "%u%s%u POSTED %u\n%s\n", cent->chatter_id, msgs->delimeter, cent->chat_id, cent->message_id, cent->load);
     } else{
-        wprintw(msgs->field, "%u%sPRIVATE POSTED %u\n%s\n",cent->chatter_id, msgs->delimeter, cent->message_id, cent->load);
+        wprintw(msgs->field, "%u%sPRIVATE(%u) POSTED %u\n%s\n",cent->chatter_id, msgs->delimeter, cent->chat_id, cent->message_id, cent->load);
     }    
     
     whline(msgs->field, ACS_HLINE, msgs->width);

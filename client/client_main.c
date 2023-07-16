@@ -13,14 +13,7 @@
 #include "client_context.h"
 #include "threads_proxy.h"
 #include "uconstants.h"
-
-struct ncscr_info info;
-struct address_v4 server;
-struct socket_xpa sock;
-struct trctrl ctrl;
-struct logger logger;
-uint32_t my_id = 3;
-uint32_t message_id = 0;
+#include "client_globals.h"
 
 void handler(int signo){
     socket_destroy(&sock);
@@ -31,7 +24,7 @@ void handler(int signo){
 //it should be in a different file though 
 void client_packet_handler();
 
-void user_input_thread_routine(){
+void *user_input_thread_routine(void *v){
     //doesn't touch messages drawing, so it's safe for concurrency
     ncscr_dedicate_thread_to_managing_user_input(&info);
 }
@@ -39,6 +32,10 @@ void user_input_thread_routine(){
 void arguments_parser(int argc, char *argv[]);
 
 int main(int argc, char *argv[]){
+    my_id = 3;
+    message_id = 0;
+    mutex_init(&message_queue);
+
     signal(SIGINT, handler);
     socket_init(&sock);
     trctrl_init(&ctrl, &sock);
@@ -52,7 +49,8 @@ int main(int argc, char *argv[]){
 
     initscr();
     noecho(); // I will have to make a custom one
-
+    curs_set(0);
+    
     ncscr_info_init(&info);
 
     ncscr_refresh_chat(&info);
@@ -103,7 +101,12 @@ void client_packet_handler(){
         }
 
         if(pack.header.op_code == PRIVMSG || pack.header.op_code == GROUPMSG){
+            mutex_lock(&message_queue);
             ncscr_add_message(&info, &pack);
-        } 
+            ncscr_refresh_chat(&info);
+            mutex_unlock(&message_queue);
+        }
+
+        packet_destroy(&pack);
     }
 }

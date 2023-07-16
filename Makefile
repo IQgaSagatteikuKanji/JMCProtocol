@@ -8,7 +8,7 @@ SERVER_FUNCTIONALITY_LIBS=-I./server/handlers -I./server/handlers/Users -I./serv
 ALL_LIBS=$(UNIVERSAL_LIBS) $(SERVER_FUNCTIONALITY_LIBS) $(SERVER_LIBS)
 
 UNIVERSAL_OBJECTS=logger.o XDR_representation.o socket_proxy.o packet_net_transmission.o packet_format.o internet_address.o  threads_proxy.o
-CLIENT_NCURSES_OBJECTS=client_chat_entry.o client_chat_messages.o client_command_handler.o client_console.o client_context.o client_interface.o client_main.o client_messages_renderer.o
+CLIENT_NCURSES_OBJECTS=client_globals.o client_chat_entry.o client_chat_messages.o client_command_handler.o client_console.o client_context.o client_interface.o client_main.o client_messages_renderer.o
 ARCHIVER_OBJECTS=LzmaDec.o LzmaEnc.o LzFind.o CpuArch.o archivation_proxy.o
 
 BARE_SERVER=$(ARCHIVER_OBJECTS) $(UNIVERSAL_OBJECTS) event_handler_entry.o events.o server_control.o server_main.o 
@@ -141,6 +141,8 @@ client_main.o: ./client/client_main.c
 client_messages_renderer.o: ./client/client_messages_renderer.c
 	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^ 
 
+client_globals.o: ./client/client_globals.c
+	$(CC) $(FLAGS) $(UNIVERSAL_LIBS) $^ 
 
 clean: 
 	rm *.o

@@ -12,6 +12,7 @@
 #include "server_responses.h"
 
 #include "connection_handler.h"
+#include "chatting_handler.h"
 
 // The client_persistent_data will be a reference to a user profile client has signed in
 
@@ -42,6 +43,11 @@ void packets_handler(struct event *event){
         case LOGIN:
             user_login(event);
             break;
+            
+        case PRIVMSG:
+            private_message(event);
+            break;
+
         default:
             response_NACK(event);
     }

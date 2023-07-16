@@ -105,8 +105,7 @@ void broadcast_to_group_chat(struct server_context *server,struct packet *pack, 
     
     if(members != NULL){
         for(uint32_t i = 0; i < members->number_of_ids; i++){
-            if(members->ids[i] != sender)
-                send_message_to_user(server, pack, members->ids[i]);
+            send_message_to_user(server, pack, members->ids[i]);
         }
     }
 }
@@ -128,9 +127,9 @@ uint32_t send_message_in_existing_group_chat(struct event *event, struct group_c
 void group_message(struct event *event){
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.receiver_id);
 
-    if(gc != NULL){
+    if(gc != NULL && gc_is_user_listening_to_gc(gc, event->packet->header.sender_id)){
         uint32_t mid = send_message_in_existing_group_chat(event, gc);
-        response_ACK_set_message_id(event, mid);
+        //response_ACK_set_message_id(event, mid);
     } else{
         response_NACK(event);
     }
@@ -266,12 +265,13 @@ void create_group(struct event *event){
 
     gccol_add_gchat(&gcs, &gc);
     response_ACK_set_message_id(event, gc.chat_id);
+    printf("NOTICE: A new chat was created. It's id is %u\n", gc.chat_id);
 }
 
 void join_group(struct event *event){
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.target);
 
-    if(gc != NULL){
+    if(gc != NULL && !gc_is_user_listening_to_gc(gc, event->packet->header.sender_id)){
         gc_add_listener(gc, event->packet->header.sender_id);
         response_ACK(event);
     }else{

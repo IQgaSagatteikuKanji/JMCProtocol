@@ -7,6 +7,7 @@
 #include "socket_proxy.h"
 #include "internet_address.h"
 #include "client_context.h"
+#include "threads_proxy.h"
 
 //there is a better way than this
 struct ncscr_info info;

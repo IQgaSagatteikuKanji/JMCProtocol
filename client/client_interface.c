@@ -50,7 +50,11 @@ void parse_msg(const char *str, int *recipient, char **payload){
     int paypos = strchr(str + recipos + 1, ' ') - str;
 
     if(recipient != NULL){
-        int recilength = paypos - recipos;
+		int recilength;
+		if(paypos > 0){
+			recilength = paypos - recipos;
+		}
+        recilength = strlength - recipos;
         char *reci = calloc(sizeof(char), recilength + 1);
         strncpy(reci, str + recipos, recilength);
         *recipient = atoi(reci);

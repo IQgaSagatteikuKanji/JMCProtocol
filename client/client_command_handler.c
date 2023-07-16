@@ -11,7 +11,10 @@
 
 
 void login_handler();
+void create_group_handler(char *command);
+void join_group_handler(char *command);
 void private_message_handler(char *command);
+void group_message_handler(char *command);
 
 void command_handler(char *command){
     enum COMMAND_CODES ccode = get_command_code_from_str(command);
@@ -29,6 +32,18 @@ void command_handler(char *command){
 
         case CC_PRIVMSG:
             private_message_handler(command);
+            break;
+        
+        case CC_GROUPMSG:
+            group_message_handler(command);
+            break;
+
+        case CC_CREATE_GROUP:
+            create_group_handler(command);
+            break;
+        
+        case CC_JOIN_GROUP_CHAT:
+            join_group_handler(command);
             break;
 
         default:
@@ -76,4 +91,49 @@ void private_message_handler(char *command){
 
     //also frees payload string
     packet_destroy(&pack);
+}
+
+void group_message_handler(char *command){
+    uint32_t recipient;
+    char *payload = NULL;
+    parse_msg(command, &recipient, &payload);
+
+    struct packet pack;
+    packet_init(&pack);
+    pack.header.id = message_id++;
+    pack.header.op_code = GROUPMSG;
+    pack.header.receiver_id = recipient;
+    pack.header.sender_id = my_id;
+    pack.header.payload_length = strlen(payload);
+    pack.payload = payload;
+
+    trctrl_send(&ctrl, &pack);
+    
+
+    //also frees payload string
+    packet_destroy(&pack);
+}
+
+void send_payload_free_package_with_target(uint32_t op_code, uint32_t target){
+    struct packet pack;
+    packet_init(&pack);
+    pack.header.id = message_id++;
+    pack.header.op_code = op_code;
+    pack.header.sender_id = my_id;
+    pack.header.target = target;
+
+    trctrl_send(&ctrl, &pack);    
+
+    //also frees payload string
+    packet_destroy(&pack);
+}
+
+void create_group_handler(char *command){
+    send_payload_free_package_with_target(CREATE_GROUP, 0);
+}
+void join_group_handler(char *command){
+    uint32_t recipient;
+    parse_msg(command, &recipient, NULL);
+
+    send_payload_free_package_with_target(JOIN, recipient);
 }

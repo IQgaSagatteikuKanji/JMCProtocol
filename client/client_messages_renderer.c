@@ -36,9 +36,9 @@ int draw_chat_entry(struct messages *msgs, struct client_chat_entry *cent){
     }
 
     wmove(msgs->field, offset, 0);
-    if(!cent->type == PRIVATE_MESSAGE){
-        wprintw(msgs->field, "%u%s%u POSTED %u\n%s\n", cent->chatter_id, msgs->delimeter, cent->chat_id, cent->message_id, cent->load);
-    } else{
+    if(cent->type != PRIVATE_MESSAGE){
+        wprintw(msgs->field, "%u%sGROUP(%u) POSTED %u\n%s\n", cent->chatter_id, msgs->delimeter, cent->chat_id, cent->message_id, cent->load);
+    } else {
         wprintw(msgs->field, "%u%sPRIVATE(%u) POSTED %u\n%s\n",cent->chatter_id, msgs->delimeter, cent->chat_id, cent->message_id, cent->load);
     }    
     

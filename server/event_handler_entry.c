@@ -48,6 +48,18 @@ void packets_handler(struct event *event){
             private_message(event);
             break;
 
+        case GROUPMSG:
+            group_message(event);
+            break;
+
+        case CREATE_GROUP:
+            create_group(event);
+            break;
+        
+        case JOIN:
+            join_group(event);
+            break; 
+
         default:
             response_NACK(event);
     }

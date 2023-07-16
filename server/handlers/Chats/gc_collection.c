@@ -52,8 +52,8 @@ void gccol_add_gchat(struct gc_collection *gccol, struct group_chat *gc){
     }
 
     // add pc to collection
-    gccol->gcs[gccol->count] = *gc;
     gc->chat_id = gccol->count;
+    gccol->gcs[gccol->count] = *gc;
     gccol->count++;
 }
 

@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "uconstants.h"
 #include "server_parameters.h"
@@ -13,6 +14,8 @@
 
 #include "connection_handler.h"
 #include "chatting_handler.h"
+
+#define MIN(x,y) (x < y ? x : y)
 
 // The client_persistent_data will be a reference to a user profile client has signed in
 
@@ -39,38 +42,56 @@ void packets_handler(struct event *event){
     //some checks for all the packets
     //add logic that requires loging in to start
 
+    char *type_of_packet = "Undefined";
+
     switch(event->packet->header.op_code){
         case LOGIN:
             user_login(event);
+            type_of_packet = "LOGIN";
             break;
             
         case PRIVMSG:
             private_message(event);
+            type_of_packet = "PRIVMSG";
             break;
 
         case GROUPMSG:
             group_message(event);
+            type_of_packet = "GROUPMSG";
             break;
 
         case CREATE_GROUP:
             create_group(event);
+            type_of_packet = "CREATE_GROUP";
             break;
         
         case JOIN:
             join_group(event);
+            type_of_packet = "JOIN";
             break; 
 
         case LEAVE:
             leave_group(event);
+            type_of_packet = "LEAVE";
             break;
         
         case DELETEMSG_FROM_GROUP:
             delete_group_message(event);
+            type_of_packet = "DELETEMSG_FROM_GROUP";
             break;
 
         default:
             response_NACK(event);
     }
+
+    int str_length = 512;
+    char *str = calloc(1, str_length);
+    memset(str, 0, str_length);
+    sprintf(str, "Client %u sent %s to %u with payload:", event->packet->header.sender_id, type_of_packet, event->packet->header.receiver_id);
+    strncat(str, event->packet->payload, MIN(str_length - strlen(str), event->packet->header.payload_length));
+    str[strlen(str)] = '\n';
+
+    log_0_terminated_str(&logger, str);
 }
 
 void disconnect_handler(struct event *event){
@@ -78,6 +99,14 @@ void disconnect_handler(struct event *event){
 
     if(usr != NULL){
         usr->is_logged_in = false;
+
+        int str_length = 512;
+        char *str = calloc(1, str_length);
+        memset(str, 0, str_length);
+        sprintf(str, "Client %u has disconnected\n", usr->id);
+        log_0_terminated_str(&logger, str);
+    } else{
+        log_0_terminated_str(&logger, "Unknown user has disconnected\n");
     }
 }
 

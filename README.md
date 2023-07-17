@@ -27,7 +27,13 @@ Joins existing group
 - `msg group_id content`
 Sends message if the group exists
 
-Other command handlers are fully implemented and working, but are not yet available to clients, because clients ont have a way to correctly show server responses or don't have command parsers ready for them yet. I'll try to implement those on monday. 
+- `leave group_id`
+Leaves group
+
+- `delete group_id message_id`
+Deletes the message from the group
+
+Other command handlers are fully implemented and working, but are not yet available to clients, because clients dont have a way to correctly show server responses or don't have command parsers ready for them yet.
 
 
 #### Server

@@ -9,7 +9,8 @@ void logger_init(struct logger *logger, struct logger_builder *builder){
     assert(builder != NULL);
     assert(builder->filename != NULL);
 
-    logger->logfile = fopen(builder->filename, "w");
+    fclose(fopen(builder->filename, "w"));
+    logger->logfile = fopen(builder->filename, "a");
     memset(logger->buffer, 0, LOGGER_BUFFER_SIZE);
     logger->offset = 0u;
     logger->zero_terminator_for_buffer = 0;
@@ -40,12 +41,12 @@ char *get_0_terminated_str_from(char *str, uint32_t length){
     return retval;
 }
 
-void log_fixed_0_term_str(struct logger *logger, char *str, uint32_t length){
+void log_fixed_0_term_str(struct logger *logger, char *str, uint32_t length){   
     if(length > LOGGER_BUFFER_SIZE){
         logger_flush(logger);
         fputs(str, logger->logfile);
     } else{
-        if(length > LOGGER_BUFFER_SIZE - logger->offset){
+        if(length > (LOGGER_BUFFER_SIZE - logger->offset)){
             logger_flush(logger);
         }
         strncpy(logger->buffer + logger->offset, str, length);

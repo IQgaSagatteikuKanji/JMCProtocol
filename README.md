@@ -42,7 +42,7 @@ server_app [-i IPv4] [-p port]
   -p Defines port of the server
 
 
-### The description
+### Description
 All the server logic is done, the only thing i need is a packet queue for client to remember the packages it has sent, sadly I don't think i have enough time to implement it. So you'll have to look into a server console to get the group id for now, even though server does send it in target field.
 
 Logging is done by the server in the Server_logfile.txt. It logs all the packet it receives from users with their payload and when users disconnect.

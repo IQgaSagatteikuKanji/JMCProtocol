@@ -13,7 +13,7 @@
 
 struct logger{
     FILE *logfile;
-    uint8_t offset;
+    uint32_t offset;
     char buffer[LOGGER_BUFFER_SIZE];
     char zero_terminator_for_buffer;
 };

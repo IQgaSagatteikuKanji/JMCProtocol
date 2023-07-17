@@ -87,7 +87,7 @@ void packets_handler(struct event *event){
     int str_length = 1024;
     char *str = calloc(1, str_length);
     memset(str, 0, str_length);
-    sprintf(str, "Client %u sent %s to %u with payload:", event->packet->header.sender_id, type_of_packet, event->packet->header.receiver_id);
+    sprintf(str, "Client %u sent %s to %u targeting %u with payload:", event->packet->header.sender_id, type_of_packet, event->packet->header.receiver_id, event->packet->header.target);
     strncat(str, event->packet->payload, MIN(str_length - strlen(str), event->packet->header.payload_length));
     str[strlen(str)] = '\n';
 

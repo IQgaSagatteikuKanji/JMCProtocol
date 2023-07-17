@@ -71,6 +71,10 @@ uint32_t privmsg_in_existing_private_chat(struct event *event, struct private_ch
 
 
 void private_message(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+    }
+
     struct user *usr = event->client_persistent_data;
     uint32_t sender = event->packet->header.sender_id;
     uint32_t receiver = event->packet->header.receiver_id;
@@ -125,6 +129,11 @@ uint32_t send_message_in_existing_group_chat(struct event *event, struct group_c
 
 
 void group_message(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+        return;
+    }
+
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.receiver_id);
 
     if(gc != NULL && gc_is_user_listening_to_gc(gc, event->packet->header.sender_id)){
@@ -147,6 +156,11 @@ bool delete_message_in_existing_group_chat(struct event *event, struct group_cha
 
 
 void delete_group_message(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+        return;
+    }
+
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.receiver_id);
 
     if(gc != NULL){
@@ -173,6 +187,10 @@ bool delete_message_in_existing_private_chat(struct event *event, struct private
 
 
 void delete_private_message(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+    }
+
     uint32_t sender = event->packet->header.sender_id;
     uint32_t receiver = event->packet->header.receiver_id;
 
@@ -209,17 +227,27 @@ struct packet *produce_packet_from_chat_entry(struct chat_entry *entry, uint32_t
 
 
 void edit_group_message(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+        return;
+    }
+
+    uint32_t sender = event->packet->header.sender_id;
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.receiver_id);
+
     if(gc == NULL){
         response_NACK(event);
+        return;
     }
 
     struct chat_entry *cent = gc_find_chat_entry_by_message_id(gc, event->packet->header.target);
     if(cent == NULL){
         response_NACK(event);
+        return;
     }
     if(!authorised_to_edit(event->client_persistent_data, cent)){
         response_NACK(event);
+        return;
     }
 
     free(cent->load);
@@ -235,17 +263,25 @@ void edit_group_message(struct event *event){
 
 
 void edit_private_message(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+        return;
+    }
+
     struct private_chat *pc = pccol_find_chat_by_two_users(&pcs, event->packet->header.sender_id, event->packet->header.receiver_id);
     if(pc == NULL){
         response_NACK(event);
+        return;
     }
 
     struct chat_entry *cent = pc_find_chat_entry_by_message_id(pc, event->packet->header.target);
     if(cent == NULL){
         response_NACK(event);
+        return;
     }
     if(!authorised_to_edit(event->client_persistent_data, cent)){
         response_NACK(event);
+        return;
     }
 
     free(cent->load);
@@ -260,6 +296,11 @@ void edit_private_message(struct event *event){
 }
 
 void create_group(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+        return;
+    }
+
     struct group_chat gc;
     group_chat_init(&gc);
 
@@ -269,6 +310,11 @@ void create_group(struct event *event){
 }
 
 void join_group(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+        return;
+    }
+
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.target);
 
     if(gc != NULL && !gc_is_user_listening_to_gc(gc, event->packet->header.sender_id)){
@@ -280,6 +326,11 @@ void join_group(struct event *event){
 }
 
 void leave_group(struct event *event){
+    if(event->client_persistent_data == NULL){
+        response_NACK(event);
+        return;
+    }
+
     struct group_chat *gc = gccol_find_chat_by_group_id(&gcs, event->packet->header.target);
 
     if(gc != NULL){

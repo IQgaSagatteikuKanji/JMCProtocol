@@ -15,6 +15,7 @@ void create_group_handler(char *command);
 void join_group_handler(char *command);
 void private_message_handler(char *command);
 void group_message_handler(char *command);
+void leave_group_handler(char *command);
 
 void command_handler(char *command){
     enum COMMAND_CODES ccode = get_command_code_from_str(command);
@@ -46,6 +47,10 @@ void command_handler(char *command){
             join_group_handler(command);
             break;
 
+        case CC_LEAVE:
+            leave_group_handler(command);
+            break;
+            
         default:
         //should put some output to signalise its a wrong command later
             break;
@@ -136,4 +141,11 @@ void join_group_handler(char *command){
     parse_msg(command, &recipient, NULL);
 
     send_payload_free_package_with_target(JOIN, recipient);
+}
+
+void leave_group_handler(char *command){
+    uint32_t recipient;
+    parse_msg(command, &recipient, NULL);
+
+    send_payload_free_package_with_target(LEAVE, recipient);
 }

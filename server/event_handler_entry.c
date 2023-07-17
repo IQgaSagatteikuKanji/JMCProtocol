@@ -60,6 +60,10 @@ void packets_handler(struct event *event){
             join_group(event);
             break; 
 
+        case LEAVE:
+            leave_group(event);
+            break;
+
         default:
             response_NACK(event);
     }

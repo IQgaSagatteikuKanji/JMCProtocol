@@ -84,7 +84,7 @@ void packets_handler(struct event *event){
             response_NACK(event);
     }
 
-    int str_length = 512;
+    int str_length = 1024;
     char *str = calloc(1, str_length);
     memset(str, 0, str_length);
     sprintf(str, "Client %u sent %s to %u with payload:", event->packet->header.sender_id, type_of_packet, event->packet->header.receiver_id);
@@ -92,6 +92,7 @@ void packets_handler(struct event *event){
     str[strlen(str)] = '\n';
 
     log_0_terminated_str(&logger, str);
+    free(str);
 }
 
 void disconnect_handler(struct event *event){
@@ -105,6 +106,7 @@ void disconnect_handler(struct event *event){
         memset(str, 0, str_length);
         sprintf(str, "Client %u has disconnected\n", usr->id);
         log_0_terminated_str(&logger, str);
+        free(str);
     } else{
         log_0_terminated_str(&logger, "Unknown user has disconnected\n");
     }

@@ -45,11 +45,9 @@ server_app [-i IPv4] [-p port]
 ### The description
 All the server logic is done, the only thing i need is a packet queue for client to remember the packages it has sent, sadly I don't think i have enough time to implement it. So you'll have to look into a server console to get the group id for now, even though server does send it in target field.
 
+Logging is done by the server in the Server_logfile.txt. It logs all the packet it receives from users with their payload and when users disconnect.
 
 ### TODO
-- Logging
-I didn't have enough time to implement logging statements, but they are simple in the sense they are added to the handlers on both sides. I'll try to do them on monday.
-
 - Files
 They are also straightforward. One packet will be sent with a description of a file, then if the other side accepts it, it will be sent over the same socket, but will have 2 opcodes: UPLOAD_FILES_EXPECT_MORE and UPLOAD_FILES_FINISHED for server. The receiver will just append it to the end of the file.
 

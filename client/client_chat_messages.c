@@ -112,14 +112,14 @@ void client_dlist_remove_node(struct client_dlist_node **node){
     free(to_delete);
 }
 
-char client_dlist_remove_id(struct client_dlist *list, uint32_t id){
+char client_dlist_remove_id(struct client_dlist *list, uint32_t id, uint32_t chat_id, int type_of_chat){
     assert(list != NULL);
     char deleted = 0;
     if(list->head != NULL){
         struct client_dlist_node **ptr = &list->head;
 
         while((*ptr) != NULL && !deleted){
-            if((*ptr)->msg.message_id == id){
+            if((*ptr)->msg.message_id == id && (*ptr)->msg.chat_id == chat_id && (*ptr)->msg.type == type_of_chat){
                 deleted = 1;
                 client_dlist_remove_node(ptr);
             } else{
@@ -163,6 +163,6 @@ void client_dlist_add_new_chat_entry(struct client_dlist *list, struct client_ch
     client_dlist_add_to_head(list, cent);
 }
 
-void client_dlist_remove_chat_entry(struct client_dlist *list, uint32_t message_id){
-    client_dlist_remove_id(list, message_id);
+void client_dlist_remove_chat_entry(struct client_dlist *list, uint32_t message_id, uint32_t chat_id, int type_of_chat){
+    client_dlist_remove_id(list, message_id, chat_id, type_of_chat);
 }

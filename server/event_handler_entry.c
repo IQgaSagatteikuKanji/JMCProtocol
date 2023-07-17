@@ -63,6 +63,10 @@ void packets_handler(struct event *event){
         case LEAVE:
             leave_group(event);
             break;
+        
+        case DELETEMSG_FROM_GROUP:
+            delete_group_message(event);
+            break;
 
         default:
             response_NACK(event);

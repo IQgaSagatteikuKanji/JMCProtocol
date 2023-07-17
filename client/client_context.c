@@ -46,10 +46,10 @@ void ncscr_add_message(struct ncscr_info *info, struct packet *pack){
     messages_add_message(&info->messages, pack);
 }
 
-void ncscr_remove_message(struct ncscr_info *info, uint32_t id){
+void ncscr_remove_message(struct ncscr_info *info, uint32_t id, uint32_t chat_id, int type_of_chat){
     assert(info != NULL);
 
-    messages_remove_message(&info->messages, id);
+    messages_remove_message(&info->messages, id, chat_id, type_of_chat);
 }
 
 void ncscr_stop_serving_clients(struct ncscr_info *info){

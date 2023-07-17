@@ -20,4 +20,4 @@ void messages_destroy(struct messages *msgs);
 void messages_render(struct messages *msgs);
 
 void messages_add_message(struct messages *msgs, struct packet *pack);
-void messages_remove_message(struct messages *msgs, uint32_t message_id);
+void messages_remove_message(struct messages *msgs, uint32_t message_id, uint32_t chat_id, int type_of_chat);

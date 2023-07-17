@@ -107,6 +107,13 @@ void client_packet_handler(){
             mutex_unlock(&message_queue);
         }
 
+        if(pack.header.op_code == DELETEMSG_FROM_GROUP){
+            mutex_lock(&message_queue);
+            ncscr_remove_message(&info, pack.header.target, pack.header.receiver_id, GROUP_MESSAGE);
+            ncscr_refresh_chat(&info);
+            mutex_unlock(&message_queue);
+        }
+
         packet_destroy(&pack);
     }
 }

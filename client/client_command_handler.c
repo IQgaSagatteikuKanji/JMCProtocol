@@ -2,6 +2,7 @@
 
 #include <signal.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "client_interface.h"
 #include "client_context.h"
@@ -14,6 +15,7 @@ void login_handler();
 void create_group_handler(char *command);
 void join_group_handler(char *command);
 void private_message_handler(char *command);
+void group_message_delete_handler(char *command);
 void group_message_handler(char *command);
 void leave_group_handler(char *command);
 
@@ -50,7 +52,11 @@ void command_handler(char *command){
         case CC_LEAVE:
             leave_group_handler(command);
             break;
-            
+        
+        case CC_DELETE_GROUPMSG:
+            group_message_delete_handler(command);
+            break;
+
         default:
         //should put some output to signalise its a wrong command later
             break;
@@ -119,13 +125,14 @@ void group_message_handler(char *command){
     packet_destroy(&pack);
 }
 
-void send_payload_free_package_with_target(uint32_t op_code, uint32_t target){
+void send_payload_free_package(uint32_t op_code, uint32_t target, uint32_t recipient){
     struct packet pack;
     packet_init(&pack);
     pack.header.id = message_id++;
     pack.header.op_code = op_code;
     pack.header.sender_id = my_id;
     pack.header.target = target;
+    pack.header.receiver_id = recipient;
 
     trctrl_send(&ctrl, &pack);    
 
@@ -134,18 +141,29 @@ void send_payload_free_package_with_target(uint32_t op_code, uint32_t target){
 }
 
 void create_group_handler(char *command){
-    send_payload_free_package_with_target(CREATE_GROUP, 0);
+    send_payload_free_package(CREATE_GROUP, 0, 0);
 }
 void join_group_handler(char *command){
     uint32_t recipient;
     parse_msg(command, &recipient, NULL);
 
-    send_payload_free_package_with_target(JOIN, recipient);
+    send_payload_free_package(JOIN, recipient, 0);
 }
 
 void leave_group_handler(char *command){
     uint32_t recipient;
     parse_msg(command, &recipient, NULL);
 
-    send_payload_free_package_with_target(LEAVE, recipient);
+    send_payload_free_package(LEAVE, recipient, 0);
+}
+
+void group_message_delete_handler(char *command){
+    char *target = NULL;
+    uint32_t recipient;
+    parse_msg(command, &recipient, &target);
+
+    uint32_t target_id = atoi(target);
+    free(target);
+
+    send_payload_free_package(DELETEMSG_FROM_GROUP, target_id, recipient);
 }

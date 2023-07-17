@@ -73,8 +73,8 @@ void messages_add_message(struct messages *msgs, struct packet *pack){
     ccent_build_from_packet(&cent, pack);
     client_dlist_add_new_chat_entry(&msgs->entries, &cent);
 }
-void messages_remove_message(struct messages *msgs, uint32_t message_id){
+void messages_remove_message(struct messages *msgs, uint32_t message_id, uint32_t chat_id, int type_of_chat){
     assert(msgs != NULL);
 
-    client_dlist_remove_chat_entry(&msgs->entries, message_id);
+    client_dlist_remove_chat_entry(&msgs->entries, message_id, chat_id, type_of_chat);
 }

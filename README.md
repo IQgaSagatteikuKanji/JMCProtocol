@@ -3,7 +3,7 @@ Just My Chat Protocol
 
 ### Usage
 #### Client
-client_app [-i IPv4] [-p port] [-u user_id]
+`client_app [-i IPv4] [-p port] [-u user_id]`
   -i Defines ip address of the server
   -p Defines port of the server
   -u Defines user_id that will be used to identify your account
@@ -37,7 +37,7 @@ Other command handlers are fully implemented and working, but are not yet availa
 
 
 #### Server
-server_app [-i IPv4] [-p port]
+`server_app [-i IPv4] [-p port]`
   -i Defines ip address of the server
   -p Defines port of the server
 
